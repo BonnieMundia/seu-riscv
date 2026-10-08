@@ -38,8 +38,8 @@ himself (viva/paper review), not just that the code works. For EVERY code additi
   `-march=rv32i -mabi=ilp32`). Versions in docs/environment.md.
 - Python venv: `~/.venv` (cocotb, numpy, pandas, scipy, matplotlib, pyelftools, jupyter).
 - Upstream clones: `~/picorv32` (commit in docs/picorv32_commit.txt), `~/faultergeist`.
-- LibreLane (via Nix) for SKY130 synthesis — Boniface says installed; how to launch it
-  is still to confirm (not on PATH as of 2026-10-08).
+- LibreLane for SKY130 synthesis — NOT installed yet (pip attempt failed, see
+  docs/environment.md). Needed by Gate 3.
 
 ## Research questions
 - RQ1: Which units (register file, PC, control state, decoder, ALU/operand regs, memory

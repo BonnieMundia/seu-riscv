@@ -16,7 +16,11 @@ PicoRV32 upstream commit: ef203c2b0a3fb793280f5114941416c425c5b461
 ```
 
 ## Not found on 2026-10-08 (to fix)
-- LibreLane: not on PATH, not in /nix/store, not under ~. Nix itself is installed at
-  /nix/var/nix/profiles/default/bin but not on the default shell PATH. Version: TBD.
+- LibreLane: NOT installed (re-checked 2026-10-08). Shell history shows
+  `python3 -m pip install --upgrade librelane`, but no Python has the package: Homebrew
+  Python 3.14 is EXTERNALLY-MANAGED (PEP 668), so a global pip install is refused. The Nix
+  store (71 entries) has no LibreLane, OpenROAD, Magic or KLayout; only the nixpkgs recipe
+  (pkgs/by-name/li/librelane). Nix is at /nix/var/nix/profiles/default/bin (not on PATH).
+  Needed by Gate 3 (18 Dec). Version: TBD.
 - Waveform viewer (GTKWave / Surfer): not found. Needed only for debugging.
 - Python venv uses Python 3.9.6 (macOS system Python). Works today; consider 3.11+ later.
