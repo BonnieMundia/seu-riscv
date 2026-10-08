@@ -1,0 +1,29 @@
+# Simulation / build outputs
+obj_dir/
+build/
+sw/build/
+*.vcd
+*.fst
+*.o
+*.elf
+*.hex
+*.bin
+sim_build/
+results.xml
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
+
+# Synthesis runs
+synth/runs/
+
+# Large fault-campaign outputs (keep small summaries only)
+results/raw/
+results/**/*.csv.gz
+results/**/*.parquet
+
+# macOS
+.DS_Store
