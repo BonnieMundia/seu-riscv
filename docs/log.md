@@ -12,4 +12,7 @@ Format per entry: done · numbers · blockers · next.
 - Done: Phase 1 hello-world SoC. rtl/soc.v (PicoRV32 RV32I + 64 KB RAM + out/done ports), tb/tb_soc.v, sw/ (crt0.S, link.ld, hello.c), Makefile (`make sw`, `make sim`, `make wave`, `make clean`).
 - Numbers: hello-world prints OUT 00c0ffee, DONE cycles=191 (Verilator 5.052); Icarus 13.0 gives the identical result (191 cycles). Hang path (+max_cycles=100) and trap path (ebreak, TRAP cycles=7) both checked.
 - Blockers: none for Phase 1. LibreLane install still not found; no waveform viewer installed.
-- Next: push to GitHub; Phase 2 workloads W1–W5; papers 1–5.
+- Done (later 2026-10-08): CLAUDE.md now asks for trainer/supervisor style; docs/learning/phase1.md written (file-by-file explanation, 6 exercises, sources, viva questions). Remote set to github.com/BonnieMundia/seu-riscv.
+- Numbers: hello-world = 44 executed instructions; PicoRV32 README CPI table predicts 141 cycles; waveform shows 48 memory transfers with 1 wait cycle each -> 141 + 48 + ~2 start-up ≈ 191 measured.
+- Blockers: push needs GitHub authentication on this Mac (no gh, no SSH key, no credential helper); LibreLane launch command unknown.
+- Next: push; Boniface works through phase1.md exercises; Phase 2 workloads W1–W5; papers 1–5.

@@ -15,13 +15,31 @@ upsets: a fully open-source simulation study. SIMULATION ONLY (no FPGA/hardware)
 - Never invent numbers/results. Check source (README, --help, docs) or ask.
 - Log every design choice in docs/decisions.md (dated, one line); weekly notes in docs/log.md.
 
+## Act as trainer / supervisor (Boniface must be able to run and defend everything)
+The goal is that Boniface can rebuild, explain and defend every part of this project
+himself (viva/paper review), not just that the code works. For EVERY code addition:
+1. Explain it: what the file/block does, why it is written that way, and what would break
+   without it. Explain each new concept (Verilog, RISC-V, toolchain) in plain words.
+2. Give "Do it yourself" steps: 2–4 small hands-on tasks with a command to run and the
+   expected result, so he can check his own understanding (predict -> run -> compare).
+3. Point to sources to verify: primary first (RISC-V spec, PicoRV32 README/source, tool
+   manuals) with the section name, then a beginner-friendly one. Never cite a source you
+   have not checked exists.
+4. Write it down in docs/learning/<phase>.md (one walkthrough per phase), linked from the
+   summary at the end of the turn. Keep chat summaries short; detail goes in the doc.
+5. Where it is a good learning step, let him write the code first (give the spec + hints +
+   a test), then review it like a supervisor, instead of writing it for him.
+6. Experiments go on a throwaway branch (`git switch -c play/<topic>`) or are undone with
+   `git restore`, so main stays clean.
+
 ## Machine / tools
 - MacBook Air M5 (Apple Silicon), macOS, zsh, Homebrew. No `nproc`: use `sysctl -n hw.ncpu`.
 - Verilator, Icarus, Yosys, RISC-V GCC (prefix `riscv64-unknown-elf-`, compile with
   `-march=rv32i -mabi=ilp32`). Versions in docs/environment.md.
 - Python venv: `~/.venv` (cocotb, numpy, pandas, scipy, matplotlib, pyelftools, jupyter).
 - Upstream clones: `~/picorv32` (commit in docs/picorv32_commit.txt), `~/faultergeist`.
-- LibreLane (via Nix) for SKY130 synthesis — install location still to confirm.
+- LibreLane (via Nix) for SKY130 synthesis — Boniface says installed; how to launch it
+  is still to confirm (not on PATH as of 2026-10-08).
 
 ## Research questions
 - RQ1: Which units (register file, PC, control state, decoder, ALU/operand regs, memory
@@ -74,7 +92,7 @@ Sample sizes (Leveugle, p=0.5, 95%): 1,068 = ±3%; 2,401 = ±2%; 9,604 = ±1%.
 
 ## Repo layout
 rtl/ (picorv32.v upstream, soc.v, variants/) · sw/ · model/ · tb/ · fi/ · synth/ ·
-results/ · analysis/ · viz/ · docs/ · paper/
+results/ · analysis/ · viz/ · docs/ (learning/ = walkthroughs + exercises) · paper/
 
 ## Common commands
 - `make sw` — build sw/hello.elf + hex · `make sim` — Verilator build + run

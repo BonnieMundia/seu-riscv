@@ -25,4 +25,5 @@ make sim PROG=name  # run sw/name.c instead
 golden model · `tb/` testbenches · `fi/` fault injection · `synth/` synthesis ·
 `analysis/` · `results/` · `viz/` · `docs/` · `paper/`
 
-See `docs/environment.md` for tool versions and `docs/decisions.md` for design choices.
+Learning walkthroughs with exercises and sources: `docs/learning/` (start with
+`docs/learning/phase1.md`). See `docs/environment.md` for tool versions and `docs/decisions.md` for design choices.
