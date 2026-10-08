@@ -12,7 +12,13 @@ reliability gained per unit of area, power and clock speed on SkyWater 130 nm. E
 is simulation only, built with open-source tools (Verilator, Yosys, LibreLane, cocotb).
 
 ## Status
-Week 0 setup done.
+Phase 1 done: a C program runs on PicoRV32 (plain RV32I) in Verilator and writes
+`0xC0FFEE` to the output port (191 cycles).
+
+```sh
+make sim            # build hello.c and run it on the simulated SoC
+make sim PROG=name  # run sw/name.c instead
+```
 
 ## Layout
 `rtl/` hardware (upstream `picorv32.v`, untouched) · `sw/` workloads · `model/` Python

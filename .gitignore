@@ -27,3 +27,4 @@ results/**/*.parquet
 
 # macOS
 .DS_Store
+obj_dir_trace/
