@@ -77,7 +77,7 @@ cycles) · Detected/corrected (protection flag fired).
 - PicoRV32 config: see docs/decisions.md (authoritative).
 
 ## Architecture (built over the coming weeks)
-1. C workloads -> ELF (RISC-V GCC) -> hex (sw/elf2hex.py).
+1. C workloads -> ELF (RISC-V GCC) -> hex (objcopy -O verilog; see decisions.md).
 2. Python RV32I golden model (model/, ~300 lines, pyelftools): outputs + instruction trace.
 3. cocotb (tb/): RTL must match golden model exactly on all workloads before any FI.
 4. Route A (main) FI: Verilator C++ harness, `--vpi --public-flat-rw`; args +sig +bit
@@ -97,8 +97,11 @@ rtl/ (picorv32.v upstream, soc.v, variants/) · sw/ · model/ · tb/ · fi/ · s
 results/ · analysis/ · viz/ · docs/ (learning/ = walkthroughs + exercises) · paper/
 
 ## Common commands
-- `make sw` — build sw/hello.elf + hex · `make sim` — Verilator build + run
-- `make clean` — remove build outputs
+- `make sw PROG=x` — build sw/x.c to ELF + hex · `make sim PROG=x` — Verilator build + run
+- `make check` — run all workloads, compare with Python reference (sw/ref/workloads.py),
+  write results/golden_runs.json · `make wave` — run with VCD · `make clean`
+- Workload pattern: sw/common.h (report(), xorshift32(), mix()); add a workload = C file +
+  Python function in sw/ref/workloads.py. Boniface writes W3 and W5 himself (trainer rule 5).
 
 ## Schedule (main project Mon 12 Oct 2026 – Fri 1 Jan 2027)
 - Week 1 (12–16 Oct): hello-world SoC running, repo pushed, papers 1–5 read.

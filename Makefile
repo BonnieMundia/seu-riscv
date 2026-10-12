@@ -2,6 +2,7 @@
 #   make sw     - compile sw/$(PROG).c to ELF + hex
 #   make sim    - build the Verilator simulation and run $(PROG)
 #   make wave   - same as sim, but also dump tb_soc.vcd
+#   make check  - run every workload and compare with the Python reference
 #   make clean  - remove build outputs
 # Choose a program with PROG=<name> (default: hello).
 
@@ -22,13 +23,14 @@ TB      := tb/tb_soc.v
 VFLAGS  := --binary -Wno-fatal --top-module tb_soc -j 0
 SIMBIN  := obj_dir/Vtb_soc
 MAXCYC  ?= 1000000
+PYTHON  ?= $(HOME)/.venv/bin/python
 
-.PHONY: all sw sim wave clean
+.PHONY: all sw sim wave check clean
 all: sim
 
 sw: $(HEX)
 
-$(ELF): sw/crt0.S sw/$(PROG).c sw/link.ld | $(SWB)
+$(ELF): sw/crt0.S sw/$(PROG).c sw/common.h sw/link.ld | $(SWB)
 	$(CC) $(CFLAGS) sw/crt0.S sw/$(PROG).c $(LDFLAGS) -o $@
 	$(OBJDUMP) -d $@ > $(SWB)/$(PROG).dis
 
@@ -49,6 +51,9 @@ sim: $(SIMBIN) $(HEX)
 wave: $(HEX)
 	verilator $(VFLAGS) --trace -Mdir obj_dir_trace $(RTL) $(TB)
 	./obj_dir_trace/Vtb_soc +hex=$(HEX) +max_cycles=$(MAXCYC) +vcd
+
+check:
+	$(PYTHON) tb/check_workloads.py
 
 clean:
 	rm -rf obj_dir obj_dir_trace $(SWB) tb_soc.vcd

@@ -14,3 +14,7 @@ One line per decision: `YYYY-MM-DD — decision — reason`.
 - 2026-10-08 — Link with -lgcc (rv32i/ilp32 multilib present) — RV32I has no MUL/DIV; workloads get software multiply/divide from libgcc.
 - 2026-10-08 — Cycle count = clock edges counted by tb_soc.v from reset release until it sees done (or trap); timeout prints HANG (+max_cycles, default 1,000,000) — same definition will be used for golden cycle counts and the 2x-golden hang rule.
 - 2026-10-12 — Single working copy at ~/Documents/GitHub/seu-riscv (old ~/seu-riscv copy retired); learning exercises live on play/* branches, never on main — two copies caused edits to be invisible to the other; main must stay the reference project.
+- 2026-10-12 — Workload pattern: fixed-seed xorshift32 inputs (shifts/XORs only), work, one checksum via mix() = rotl5 ^ v, written once to OUT_PORT — deterministic, needs no MUL, order-sensitive checksum catches swapped elements.
+- 2026-10-12 — Each workload has an independent Python reference (sw/ref/workloads.py); `make check` must PASS on all workloads before they are used for fault injection — proves C program + RTL are both right.
+- 2026-10-12 — W1 inputs are 0..255 (not signed -128..127): libgcc __mulsi3 loops to the highest 1-bit of one operand, so negative operands cost 32 passes; signed version = 344,337 cycles (over the 10k-200k budget), unsigned = 147,409 cycles.
+- 2026-10-12 — Golden fault-free results (outputs + cycles) are written to results/golden_runs.json by `make check` — source for the Hang rule (> 2x golden cycles).

@@ -1,0 +1,10 @@
+{
+  "w1_matmul": {
+    "outputs": [
+      "36c7bde8"
+    ],
+    "status": "DONE",
+    "cycles": 147409,
+    "match_reference": true
+  }
+}

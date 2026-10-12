@@ -16,3 +16,6 @@ Format per entry: done · numbers · blockers · next.
 - Numbers: hello-world = 44 executed instructions; PicoRV32 README CPI table predicts 141 cycles; waveform shows 48 memory transfers with 1 wait cycle each -> 141 + 48 + ~2 start-up ≈ 191 measured.
 - Blockers: push needs GitHub authentication on this Mac (no gh, no SSH key, no credential helper); LibreLane launch command unknown.
 - Next: push; Boniface works through phase1.md exercises; Phase 2 workloads W1–W5; papers 1–5.
+- Done (2026-10-12): single working copy at ~/Documents/GitHub/seu-riscv (old copy to Trash). Phase 1 exercises 1-2 done + answer key. Phase 2 started: sw/common.h, W1 matmul, Python reference sw/ref/workloads.py, `make check`, docs/learning/phase2.md.
+- Numbers: W1 = OUT 36c7bde8, 147,409 cycles (Verilator = Icarus), matches Python reference. Signed-input W1 was 344,337 cycles (rejected).
+- Next: W2 quicksort (Claude), W3 CRC-32 (Boniface writes, Claude reviews), W4 attitude filter (Claude), W5 ADS-B CRC-24 (Boniface).
