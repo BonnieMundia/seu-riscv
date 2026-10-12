@@ -238,3 +238,28 @@ Undo everything afterwards: `git restore . && make clean`.
    each become in the study?
 6. Why is the hello-world 191 cycles and not about 141?
 7. Why is RAM never a fault-injection target in this study? (see docs/decisions.md)
+
+---
+
+## 7. Answer key (exercises 1–2, checked by running the code)
+
+**Ex 1.** `0xc10 << 12 = 0xC10000`; `0xC10000 − 18 = 0xC0FFEE`. The obvious split
+`lui 0xc0f` + `addi 0xfee` fails because `0xfee` = 4078 is outside `addi`'s signed 12-bit
+range (−2048…+2047); the CPU would read it as −18. Rule: if bit 11 of the constant is 1,
+the upper part goes up by 1 and the `addi` value is negative.
+`sw a5,0(a4)` stores 0xC0FFEE to 0x1000_0000 → soc.v sets `out_valid` → testbench prints
+`OUT`. `li a0,0` is the return value (ABI: `a0`); crt0 stores it to the done port.
+Decoding `00c107b7`: imm[31:12] = 0xc10, rd[11:7] = 15 (x15 = a5), opcode = 0110111 (LUI).
+
+**Ex 2** (two outputs, `0x1234` then `0xC0FFEE`): `OUT 00001234`, `OUT 00c0ffee`,
+`DONE cycles=206`. +15 cycles = `lui`+`addi` (3+3) + `sw` (5) + 4 wait cycles (3 fetches +
+1 store).
+- The compiler interleaves instructions but every result is produced before it is used,
+  and the two volatile stores keep their order. It also builds the port address once (in
+  `a3`) and reuses it. Golden-model comparisons must follow `hello.dis`, not the C order.
+- `0x1234` = 4660 > 2047 → `lui a4,0x1` (0x1000) + `addi 564` (0x234).
+- Without `volatile` the first store is deleted (dead-store elimination): one `OUT` line,
+  191 cycles, machine code identical to the one-line hello. Every memory-mapped I/O access
+  must use a `volatile` pointer.
+  Source: GCC manual, "When is a Volatile Object Accessed?"
+  https://gcc.gnu.org/onlinedocs/gcc/Volatiles.html
