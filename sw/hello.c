@@ -3,7 +3,6 @@
 
 int main(void)
 {
-    OUT_PORT = 0x1234;
     OUT_PORT = 0xC0FFEE;
     return 0;
 }
