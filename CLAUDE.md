@@ -33,6 +33,8 @@ himself (viva/paper review), not just that the code works. For EVERY code additi
    `git restore`, so main stays clean.
 
 ## Machine / tools
+- Project working copy: ~/Documents/GitHub/seu-riscv (the ONLY copy; Boniface edits it in
+  VS Code). GitHub: github.com/BonnieMundia/seu-riscv. Exercises go on play/* branches.
 - MacBook Air M5 (Apple Silicon), macOS, zsh, Homebrew. No `nproc`: use `sysctl -n hw.ncpu`.
 - Verilator, Icarus, Yosys, RISC-V GCC (prefix `riscv64-unknown-elf-`, compile with
   `-march=rv32i -mabi=ilp32`). Versions in docs/environment.md.
