@@ -120,3 +120,63 @@ FAIL. Tested on purpose with a wrong reference value: it reported FAIL and exit 
 - **xorshift:** G. Marsaglia, "Xorshift RNGs", *Journal of Statistical Software* 8(14),
   2003. https://www.jstatsoft.org/article/view/v008i14
 - **`<stdint.h>` exact-width types:** https://en.cppreference.com/w/c/types/integer
+
+---
+
+## 8. W3: CRC-32 over 1 KB (**your task**: you write it, I review)
+
+You know CRCs from telecoms: Ethernet's frame check sequence is exactly this CRC-32.
+
+### Spec (must match exactly, or the checksums won't agree)
+
+| item | value |
+|---|---|
+| files | `sw/w3_crc32.c` (C) and a function `w3_crc32()` in `sw/ref/workloads.py` (+ add `"w3_crc32": w3_crc32` to `WORKLOADS`) |
+| CRC | CRC-32 as used by Ethernet / zip / Python `zlib.crc32`: reflected polynomial `0xEDB88320`, start value `0xFFFFFFFF`, final XOR `0xFFFFFFFF` (catalogue name CRC-32/ISO-HDLC) |
+| output 1 | CRC of the 9 ASCII bytes `"123456789"` → must be `cbf43926` (the standard "check value": a built-in self-test) |
+| output 2 | CRC of a 1024-byte buffer: `seed = 0x0BADF00D`; each `xorshift32(&seed)` call gives **4 bytes, lowest byte first** (`w`, `w>>8`, `w>>16`, `w>>24`), 256 calls in total |
+| budget | 10,000–200,000 cycles (`make check` now fails if outside) |
+| done when | `make check` shows `w3_crc32 … PASS` and W1 still PASSes |
+
+### How to work
+```bash
+git switch main && git pull
+git switch -c w3-crc32          # a feature branch (real code, not a throwaway play/ branch)
+# ... write the code, run `make check` until PASS ...
+git add sw/w3_crc32.c sw/ref/workloads.py && git commit -m "W3: CRC-32 over 1 KB"
+```
+Then tell me. I review the diff, and after review we merge into `main`.
+
+### Suggested path (correct first, then fast)
+1. **Python first** (your strong side): `w3_crc32()` returns `[zlib.crc32(b"123456789"), zlib.crc32(buf)]`.
+   Hint: `v.to_bytes(4, "little")`, and reuse `xorshift32` from the same file.
+   Run `~/.venv/bin/python sw/ref/workloads.py` and check output 1 is `cbf43926`.
+2. **C, bit-by-bit version** (the textbook algorithm): for each byte, XOR it into the low
+   8 bits of `crc`; then 8 times: if the lowest bit is 1, `crc = (crc >> 1) ^ 0xEDB88320`,
+   else `crc = crc >> 1`. At the end return `~crc`.
+   *Expect:* `make check` gets the right answers but **FAILs the budget** (≈ 480k cycles).
+   That's intended: now you have a correct version to compare against.
+3. **C, faster version: 16-entry ("nibble") table.** Handle 4 bits per step instead of 1:
+   - Build `T[16]` once at start: `T[i]` = run the bit step 4 times starting from `crc = i`.
+   - Per byte: `crc ^= byte; crc = (crc >> 4) ^ T[crc & 15]; crc = (crc >> 4) ^ T[crc & 15];`
+   *Expect:* same two outputs, and comfortably inside the budget.
+   (A full 256-entry table is **not** faster here: building it costs ~118k cycles on its own.)
+
+### Hints
+- Use `uint8_t` for bytes and `uint32_t` for the CRC; `#include "common.h"`.
+- Put the 1 KB buffer as a global: `static uint8_t buf[1024];`.
+- Write one function `uint32_t crc32(const uint8_t *p, int n)` and call it twice.
+- Branch-free bit step (optional): `crc = (crc >> 1) ^ (0xEDB88320u & -(crc & 1));`
+  Work out why `-(crc & 1)` is either `0x00000000` or `0xFFFFFFFF`.
+
+### Questions to answer in your PR/commit message or to me
+1. Why does the bit-by-bit version cost so many cycles on PicoRV32? (Count instructions per bit.)
+2. Why does the 16-entry table beat both the bit-by-bit version and a 256-entry table here?
+3. Which CPU units does W3 stress most compared to W1? (Think: shifts, XOR, loads.)
+
+### Sources
+- CRC catalogue (Greg Cook), entry CRC-32/ISO-HDLC, gives poly/init/xorout/check value:
+  https://reveng.sourceforge.io/crc-catalogue/17plus.htm
+- Python `zlib.crc32`: https://docs.python.org/3/library/zlib.html#zlib.crc32
+- Ross Williams, "A Painless Guide to CRC Error Detection Algorithms" (classic tutorial,
+  explains table-driven CRCs): http://www.ross.net/crc/download/crc_v3.txt

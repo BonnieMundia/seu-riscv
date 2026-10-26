@@ -22,6 +22,7 @@ from workloads import WORKLOADS  # noqa: E402
 
 SIM = ROOT / "obj_dir" / "Vtb_soc"
 MAX_CYCLES = 1_000_000
+BUDGET = (10_000, 200_000)  # project scope: each workload runs 10k-200k cycles
 
 
 def run(name):
@@ -44,13 +45,21 @@ def main():
     for name in names:
         expected = WORKLOADS[name]()
         outs, status, cycles = run(name)
-        ok = status == "DONE" and outs == expected
+        correct = status == "DONE" and outs == expected
+        in_budget = BUDGET[0] <= cycles <= BUDGET[1]
+        ok = correct and in_budget
         failures += not ok
-        verdict = "PASS" if ok else (
-            f"FAIL expected {[f'{v:08x}' for v in expected]} got {[f'{v:08x}' for v in outs]}")
+        if not correct:
+            verdict = (f"FAIL expected {[f'{v:08x}' for v in expected]}"
+                       f" got {[f'{v:08x}' for v in outs]}")
+        elif not in_budget:
+            verdict = f"FAIL correct, but outside the {BUDGET[0]:,}-{BUDGET[1]:,} cycle budget"
+        else:
+            verdict = "PASS"
         print(f"{name:<14} {status:<6} {cycles:>9}  {verdict}")
         golden[name] = {"outputs": [f"{v:08x}" for v in outs], "status": status,
-                        "cycles": cycles, "match_reference": ok}
+                        "cycles": cycles, "match_reference": correct,
+                        "in_budget": in_budget}
     results = ROOT / "results" / "golden_runs.json"
     results.write_text(json.dumps(golden, indent=2) + "\n")
     print(f"wrote {results.relative_to(ROOT)}")
