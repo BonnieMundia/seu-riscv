@@ -100,6 +100,8 @@ results/ · analysis/ · viz/ · docs/ (learning/ = walkthroughs + exercises) ·
 - `make sw PROG=x` — build sw/x.c to ELF + hex · `make sim PROG=x` — Verilator build + run
 - `make check` — run all workloads, compare with Python reference (sw/ref/workloads.py),
   write results/golden_runs.json · `make wave` — run with VCD · `make clean`
+- `make lockstep [W=name]` — cocotb: RTL must match the golden ISS (model/rv32i_iss.py)
+  per instruction (PCs, register writes, stores) · `make gate1` = check + lockstep
 - Workload pattern: sw/common.h (report(), xorshift32(), mix()); add a workload = C file +
   Python function in sw/ref/workloads.py. W3/W5 written by Claude for G1 (Boniface reviews;
   phase2.md §8 stays as a redo-it-yourself task on a play branch).

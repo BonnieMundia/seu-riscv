@@ -3,6 +3,9 @@
 #   make sim    - build the Verilator simulation and run $(PROG)
 #   make wave   - same as sim, but also dump tb_soc.vcd
 #   make check  - run every workload and compare with the Python reference
+#   make lockstep - cocotb: RTL must match the golden ISS instruction by instruction
+#                   (all workloads, or W=w1_matmul); run `make check` first
+#   make gate1  - check + lockstep (the Gate 1 criterion)
 #   make clean  - remove build outputs
 # Choose a program with PROG=<name> (default: hello).
 
@@ -25,7 +28,7 @@ SIMBIN  := obj_dir/Vtb_soc
 MAXCYC  ?= 1000000
 PYTHON  ?= $(HOME)/.venv/bin/python
 
-.PHONY: all sw sim wave check clean
+.PHONY: all sw sim wave check lockstep gate1 clean
 all: sim
 
 sw: $(HEX)
@@ -55,5 +58,17 @@ wave: $(HEX)
 check:
 	$(PYTHON) tb/check_workloads.py
 
+WORKLOADS := $(shell $(PYTHON) -c "import sys; sys.path.insert(0, 'sw/ref'); from workloads import WORKLOADS, TESTS; print(' '.join([*WORKLOADS, *TESTS]))")
+W ?= $(WORKLOADS)
+
+lockstep:
+	@for w in $(W); do \
+	  $(MAKE) -s sw PROG=$$w >/dev/null && \
+	  PATH="$(HOME)/.venv/bin:$$PATH" $(MAKE) -s -C tb/cocotb WORKLOAD=$$w \
+	    COCOTB_PLUSARGS=+hex=$(CURDIR)/sw/build/$$w.hex || exit 1; \
+	done
+
+gate1: check lockstep
+
 clean:
-	rm -rf obj_dir obj_dir_trace $(SWB) tb_soc.vcd
+	rm -rf obj_dir obj_dir_trace $(SWB) tb_soc.vcd tb/cocotb/sim_build tb/cocotb/results.xml

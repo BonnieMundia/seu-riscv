@@ -158,6 +158,21 @@ WORKLOADS = {
     "w5_adsb_crc24": w5_adsb_crc24,
 }
 
+def isa_test():
+    # Hand-computed expected values for sw/isa_test.c (see the comments there).
+    return [1, 0, 0x8000_0000, 0xF800_0000, 0x2345_6780,
+            1, 0x1234, 0xFFFF_FFFF,
+            1, 0,
+            0xFFFF_FFFF, 0xFFFF_FF80, 0xFFFF_FFFE, 0x0000_7FF0,
+            0, 0x1000]
+
+
+# Test programs: checked by `make lockstep` (outputs + RTL-vs-ISS), but they are not
+# workloads (no cycle budget, not in golden_runs.json, never fault-injected).
+TESTS = {
+    "isa_test": isa_test,
+}
+
 if __name__ == "__main__":
     for name, fn in WORKLOADS.items():
         print(name, " ".join(f"{v:08x}" for v in fn()))

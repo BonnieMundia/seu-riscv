@@ -66,7 +66,9 @@ git mv results                   studies/seu/results     # golden_runs.json
 git mv paper                     studies/seu/paper
 git mv docs/decisions.md         studies/seu/docs/decisions.md
 git mv docs/log.md               studies/seu/docs/log.md
-# cocotb tests added during G1 week (tb/test_*.py, tb/Makefile.cocotb) -> platform/tests/
+git mv tb/cocotb                 platform/tests/cocotb   # lockstep test (RTL vs ISS)
+git mv sw/isa_test.c             platform/tests/sw/isa_test.c
+# model/rv32i_iss.py moves with `git mv model platform/model` above
 ```
 Files created during G1 week that are not listed above are placed by the same rule:
 core-agnostic → `platform/`, SEU-specific → `studies/seu/`. Re-check with
@@ -89,7 +91,7 @@ core-agnostic → `platform/`, SEU-specific → `studies/seu/`. Re-check with
 2. `make golden STUDY=seu` → W1–W5 PASS, cycle counts **identical** to the pre-move
    `results/golden_runs.json` (`diff` the two files: no differences).
 3. Icarus cross-check of W1 → same OUT and cycles.
-4. cocotb RTL-vs-ISS test on W1–W5 (exists after G1) → PASS.
+4. `make lockstep` (cocotb RTL-vs-ISS) on W1–W5 + isa_test → PASS.
 5. `git ls-files rtl sw tb model fi synth viz analysis results paper` → empty.
 6. Fresh clone into the scratchpad + `make golden STUDY=seu` → PASS (no stray absolute paths).
 

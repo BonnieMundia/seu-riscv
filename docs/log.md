@@ -19,3 +19,9 @@ Format per entry: done · numbers · blockers · next.
 - Done (2026-10-12): single working copy at ~/Documents/GitHub/seu-riscv (old copy to Trash). Phase 1 exercises 1-2 done + answer key. Phase 2 started: sw/common.h, W1 matmul, Python reference sw/ref/workloads.py, `make check`, docs/learning/phase2.md.
 - Numbers: W1 = OUT 36c7bde8, 147,409 cycles (Verilator = Icarus), matches Python reference. Signed-input W1 was 344,337 cycles (rejected).
 - Next: W2 quicksort (Claude), W3 CRC-32 (Boniface writes, Claude reviews), W4 attitude filter (Claude), W5 ADS-B CRC-24 (Boniface).
+
+## Week 4 (2026-11-02)
+- Done: coordination folder + HDC worktree + migration plan (docs/platform.md); W2, W3, W4, W5; Python RV32I golden ISS; cocotb lockstep RTL-vs-ISS; isa_test (all 37 RV32I instructions); docs/learning/phase3.md.
+- Numbers: cycles W1 147,409 · W2 33,800 · W3 119,032 · W4 192,392 · W5 150,997; lockstep PASS on all + isa_test.
+- Blockers: none. Gate 1 criterion met on Mon 2 Nov (4 days early), awaiting Boniface review.
+- Next: Boniface reviews W2-W5 + phase3.md; Mon 9 Nov platform migration (docs/platform.md); then injector in platform/fi.
