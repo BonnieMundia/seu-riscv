@@ -28,3 +28,7 @@ results/**/*.parquet
 # macOS
 .DS_Store
 obj_dir_trace/
+
+# Per-study run outputs (never commit large results; release on Zenodo)
+studies/*/results/raw/
+studies/*/results/logs/
