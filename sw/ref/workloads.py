@@ -46,9 +46,28 @@ def w1_matmul():
     return [cs]
 
 
+def to_signed32(v):
+    return v - (1 << 32) if v & 0x8000_0000 else v
+
+
+def w2_qsort():
+    # Any correct sort gives the same result, so Python's sorted() is an independent
+    # reference for the C quicksort.
+    seed = 0x51ED5EED
+    a = []
+    for _ in range(64):
+        v, seed = xorshift32(seed)
+        a.append(to_signed32(v))
+    cs = 0
+    for v in sorted(a):
+        cs = mix(cs, v & M32)
+    return [cs]
+
+
 # Workload name (= sw/<name>.c) -> function returning the expected OUT values, in order.
 WORKLOADS = {
     "w1_matmul": w1_matmul,
+    "w2_qsort": w2_qsort,
 }
 
 if __name__ == "__main__":
