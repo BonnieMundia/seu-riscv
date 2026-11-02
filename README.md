@@ -12,12 +12,16 @@ reliability gained per unit of area, power and clock speed on SkyWater 130 nm. E
 is simulation only, built with open-source tools (Verilator, Yosys, LibreLane, cocotb).
 
 ## Status
-Phase 1 done: a C program runs on PicoRV32 (plain RV32I) in Verilator and writes
-`0xC0FFEE` to the output port (191 cycles).
+Gate 1 criterion met (2 Nov 2026): five workloads (W1–W5) run on PicoRV32 and match
+independent Python references, and the RTL matches a Python RV32I golden model
+instruction by instruction (cocotb lockstep), including a test covering all 37 RV32I
+instructions.
 
 ```sh
-make sim            # build hello.c and run it on the simulated SoC
-make sim PROG=name  # run sw/name.c instead
+make check          # run W1-W5, compare with Python references + cycle budget
+make lockstep       # RTL vs golden ISS, instruction by instruction
+make gate1          # both
+make sim PROG=name  # run one program (sw/name.c)
 ```
 
 ## Layout
