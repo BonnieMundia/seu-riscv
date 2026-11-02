@@ -4,7 +4,6 @@
 # Why each choice was made: studies/seu/docs/decisions.md (2 Nov 2026).
 
 ff_list: ff_list_h0.json          # from `make ffs` (platform/synth/list_ffs.py, Yosys)
-sim_prefix: tb_soc.dut            # Yosys "cpu.reg_pc" -> simulator "tb_soc.dut.cpu.reg_pc"
 
 # Register file: one memory, injected word by word (32 bits per word).
 memories:

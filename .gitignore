@@ -1,5 +1,6 @@
 # Simulation / build outputs
 obj_dir/
+obj_dir_fi/
 build/
 *.vcd
 *.fst

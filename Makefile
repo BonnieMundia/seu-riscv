@@ -9,6 +9,8 @@
 #   make gate1            golden + lockstep (the Gate 1 criterion)
 #   make ffs              Yosys: list the SoC's flip-flops -> studies/$(STUDY)/targets/ff_list_$(VARIANT).json
 #   make targets          check the target descriptor studies/$(STUDY)/targets/soc_$(VARIANT).yaml
+#   make fi               build the Verilator fault-injection harness (obj_dir_fi/Vinject)
+#   make fi-test          injector + classifier tests (pytest)
 #   make clean            remove build outputs
 #   (check = golden, kept as an alias)
 # Choose the study with STUDY=seu|hdc (default seu), the program with PROG=<name> (default hello).
@@ -38,7 +40,7 @@ PYTHON  ?= $(HOME)/.venv/bin/python
 VARIANT ?= h0
 TARGETS := studies/$(STUDY)/targets
 
-.PHONY: all sw sim wave golden check lockstep gate1 ffs targets smoke campaign figures synth clean
+.PHONY: all sw sim wave golden check lockstep gate1 ffs targets fi fi-test smoke campaign figures synth clean
 all: sim
 
 sw: $(HEX)
@@ -92,9 +94,23 @@ ffs:
 targets:
 	$(PYTHON) platform/fi/descriptor.py $(TARGETS)/soc_$(VARIANT).yaml
 
+# Fault-injection harness: the SoC (no testbench) + inject.cpp, every signal reachable
+# through VPI by name (--vpi --public-flat-rw). See platform/fi/inject.cpp.
+FIBIN := obj_dir_fi/Vinject
+fi: $(FIBIN)
+
+$(FIBIN): $(RTL) platform/fi/inject.cpp
+	verilator --cc --exe --build -j 0 -Wno-fatal -O3 --vpi --public-flat-rw --top-module soc \
+	  -Mdir obj_dir_fi -o Vinject $(RTL) platform/fi/inject.cpp
+
+fi-test: $(FIBIN)
+	@for w in $(shell $(PYTHON) platform/tests/list_programs.py --study $(STUDY)); do \
+	  $(MAKE) -s sw STUDY=$(STUDY) PROG=$$w >/dev/null || exit 1; done
+	$(PYTHON) -m pytest -q platform/fi
+
 smoke campaign figures synth:
 	@echo "make $@: not implemented yet (see docs/platform.md)"; exit 1
 
 clean:
-	rm -rf obj_dir obj_dir_trace build tb_soc.vcd \
+	rm -rf obj_dir obj_dir_trace obj_dir_fi build tb_soc.vcd \
 	       platform/tests/cocotb/sim_build platform/tests/cocotb/results.xml

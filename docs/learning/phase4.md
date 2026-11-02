@@ -1,11 +1,12 @@
-# Phase 4 walkthrough: which bits can a particle hit? (Gate 2, step 1)
+# Phase 4 walkthrough: fault targets and the injector (Gate 2)
 
 Goal of this step: a complete, checked list of every bit we will flip in the fault
 campaigns, each one labelled with its unit (PC, control, decoder, ALU, memory interface,
 counters, register file). RQ1 compares failure rates **per unit**, so this list decides
 what every later number means.
 
-Commands: `make ffs` (Yosys → flip-flop list), `make targets` (check the descriptor).
+Commands: `make ffs` (Yosys → flip-flop list), `make targets` (check the descriptor),
+`make fi` (build the injector), `make fi-test` (injector + classifier tests).
 
 ---
 
@@ -94,6 +95,60 @@ A full gate-level synthesis merges a little more than the coarse stage: 642 inst
 inject at the RTL level (in Verilator), and the SKY130 netlist at Gate 3 will be different
 again. So we use the RTL-level list and state the difference as a threat to validity.
 
+## 4b. The injector: `platform/fi/inject.cpp` (C++, Verilator + VPI)
+
+**What it does.** One run = one program, at most one bit flip, one JSON line out:
+`{"status":"done","cycles":32387,"outputs":["d5d609f1"],"injected":true,"before":"000000f0","after":"000000f4"}`
+
+**Why C++ and not the Verilog testbench.** `tb_soc.v` cannot stop at cycle T and overwrite
+an internal flip-flop chosen at run time. A small C++ `main()` can: Verilator turns the SoC
+into a C++ class (`Vsoc`); our loop drives `clk` and `resetn` ourselves.
+
+**VPI** (Verilog Procedural Interface, IEEE 1800 chapter 36-38) is the standard C API for
+reading and writing signals of a running simulation by name. Verilator supports it when
+built with `--vpi`; `--public-flat-rw` keeps every signal visible and writable. Steps
+in the harness:
+1. `vpi_handle_by_name("TOP.soc.cpu.reg_pc")` finds the signal (for the register file:
+   handle of `cpu.cpuregs`, then `vpi_handle_by_index(h, 5)` for word x5).
+2. At cycle T: `vpi_get_value` (as 32-bit chunks, `vpiVectorVal`, so 64-bit counters work
+   too), XOR the chosen bit(s), `vpi_put_value`, then `eval()` so the logic sees it.
+3. Keep clocking until `done`, `trap`, or the time limit.
+
+**Same clock count as the testbench.** Before each rising edge it checks `out_valid`,
+`done`, `trap`, the limit (the same order as `tb_soc.v`), then clocks. So fault-free runs
+give *exactly* the cycles in `golden_runs.json`. The flip happens at "cycle T" = after T
+clock edges since reset was released. Proof: flipping `count_cycle` at T = 1000 shows the
+counter read 1000 just before the flip.
+
+**Speed:** about 0.01 s for a whole workload, so a 1,068-run campaign is a few minutes.
+
+**`platform/fi/injector.py`** is a short Python wrapper: builds the command line from a
+descriptor `Site` (main bit + `also` bits), runs the harness, returns the JSON as a dict.
+
+**Checked by `make fi-test`** (`test_injector.py`, 11 tests): fault-free = golden on
+W1–W5 (outputs and cycles); the flip changes exactly the requested bits (single bit,
+64-bit counter, 12-bit shared flip-flop, register-file word); a flip after the program ended
+is reported `injected:false`; same flip twice = same result; a bit outside the signal is an
+error. Before that, all 123 signal names of the descriptor were looked up through VPI
+(`+resolve=`): none missing, all widths large enough.
+
+**First hand-picked flips on W2** (single runs, *not* statistics):
+| flip at cycle 10,000 | result |
+|---|---|
+| `count_cycle[63]` (cycle 1000) | right answer (no workload reads the counter) |
+| `reg_next_pc[2]` | wrong answer `d5d609f1`: one instruction skipped (SDC) |
+| `cpuregs[2]` (sp) bit 4 | trap (stack corrupted) |
+| `cpuregs[31]` bit 0 | right answer (W2 never uses x31) |
+| `cpu_state[7]` | hang (two states on at once, the state machine is stuck) |
+
+## 4c. Your turn: the outcome classifier (`platform/fi/classify.py`)
+
+The harness only reports facts (status, outputs). Turning them into masked / SDC / crash
+/ hang / detected is a separate, small, pure-Python function, so another study (HDC) can
+add its own sub-outcomes without touching the C++. The spec is in the file's docstring;
+the 12 tests in `test_classify.py` describe it exactly. Write it, run `make fi-test` until
+23 passed, and commit it yourself (`[platform] Outcome classifier`). I will review it.
+
 ---
 
 ## 5. Do it yourself
@@ -108,6 +163,11 @@ again. So we use the RTL-level list and state the difference as a threat to vali
    `cpu.reg_sh: in 2 units ['control', 'alu']`. Then `git restore` the file.
 4. **Viva practice.** A reviewer asks: "Why not just inject into every `reg` in the Verilog?"
    Answer in three sentences using §1 and the `mem_instr` example.
+5. **Your first injection.** `make fi sw PROG=w2_qsort`, then
+   `./obj_dir_fi/Vinject +hex=build/seu/w2_qsort.hex +max_cycles=67600 +sig=cpu.reg_next_pc +bits=2 +cycle=10000`.
+   *Expect:* `"outputs":["d5d609f1"]` (golden is `9c86f267`). Now try `+bits=3`: predict
+   first whether the answer will be right or wrong, then run it.
+6. **Write `classify()`** (§4c) and get `make fi-test` to `23 passed`.
 
 ## 6. Sources
 
@@ -115,6 +175,12 @@ again. So we use the RTL-level list and state the difference as a threat to vali
   `begin / coarse / fine / check` stages and the `-flatten`, `-nofsm`, `-run` options;
   `yosys -h read_verilog` states that `SYNTHESIS` is defined automatically; `yosys -h write_json`
   describes the JSON netlist format (cells, connections, netnames).
+- **Verilator manual** (primary): page "verilator Arguments" (exe_verilator.html) for `--vpi` and
+  `--public-flat-rw`, and the "Connecting to Verilated Models" chapter (C++ main loop,
+  `VerilatedContext`, `eval()`): https://verilator.org/guide/latest/
+- **IEEE 1800 (SystemVerilog) standard**, the VPI chapters: `vpi_handle_by_name`,
+  `vpi_get_value`, `vpi_put_value`, `s_vpi_vecval`. The installed header
+  `$(verilator --getenv VERILATOR_ROOT)/include/vltstd/vpi_user.h` has the same definitions.
 - **PicoRV32 source** `platform/rtl/picorv32/picorv32.v`: `cpuregs` declaration (~203),
   write port (~1337), read with x0 check (~1352), `mem_la_addr` (382), `cpu_state`
   encodings (~1172).
