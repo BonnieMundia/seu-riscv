@@ -25,3 +25,4 @@ Format per entry: done · numbers · blockers · next.
 - Numbers: cycles W1 147,409 · W2 33,800 · W3 119,032 · W4 192,392 · W5 150,997; lockstep PASS on all + isa_test.
 - Blockers: none. Gate 1 criterion met on Mon 2 Nov (4 days early), awaiting Boniface review.
 - Next: Boniface reviews W2-W5 + phase3.md; Mon 9 Nov platform migration (docs/platform.md); then injector in platform/fi.
+- (later 2026-11-02) Gate 1 signed off by Boniface. Platform migration done the same day (≤ 1 day timebox held): all golden/lockstep checks identical after the move. Next: injector in platform/fi (descriptor model), Yosys FF listing → SoC target descriptor.
