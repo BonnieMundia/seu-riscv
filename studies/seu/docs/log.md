@@ -26,3 +26,4 @@ Format per entry: done · numbers · blockers · next.
 - Blockers: none. Gate 1 criterion met on Mon 2 Nov (4 days early), awaiting Boniface review.
 - Next: Boniface reviews W2-W5 + phase3.md; Mon 9 Nov platform migration (docs/platform.md); then injector in platform/fi.
 - (later 2026-11-02) Gate 1 signed off by Boniface. Platform migration done the same day (≤ 1 day timebox held): all golden/lockstep checks identical after the move. Next: injector in platform/fi (descriptor model), Yosys FF listing → SoC target descriptor.
+- (later 2026-11-02) G2 step 1: Yosys FF list (make ffs: 647 FF bits, 98 signals, regfile + RAM memories) and SEU target descriptor H0 (make targets: 1,567 fault sites in 7 units, strict check, 4 negative tests caught). soc.v synthesis guard; gate1 still identical. Next: Verilator VPI injector (one run = one flip, one JSON line).

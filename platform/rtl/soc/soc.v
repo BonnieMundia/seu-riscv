@@ -78,12 +78,15 @@ module soc #(
     // Program image: pass +hex=<file> at run time (default: program.hex).
     // Format: objcopy -O verilog --verilog-data-width=4 (word addresses, one
     // 32-bit word per entry) - see studies/seu/docs/decisions.md.
+    // Simulation only: Yosys defines SYNTHESIS and cannot evaluate $value$plusargs.
+`ifndef SYNTHESIS
     reg [8*256-1:0] hexfile;
     initial begin
         if (!$value$plusargs("hex=%s", hexfile))
             hexfile = "program.hex";
         $readmemh(hexfile, ram);
     end
+`endif
 
     wire        in_ram = (mem_addr < 4*MEM_WORDS);
     wire [13:0] widx   = mem_addr[15:2];

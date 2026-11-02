@@ -7,6 +7,8 @@
 #   make lockstep [W=x]   cocotb: RTL must match the golden ISS instruction by instruction
 #                         (all workloads of $(STUDY) + platform tests); run `make golden` first
 #   make gate1            golden + lockstep (the Gate 1 criterion)
+#   make ffs              Yosys: list the SoC's flip-flops -> studies/$(STUDY)/targets/ff_list_$(VARIANT).json
+#   make targets          check the target descriptor studies/$(STUDY)/targets/soc_$(VARIANT).yaml
 #   make clean            remove build outputs
 #   (check = golden, kept as an alias)
 # Choose the study with STUDY=seu|hdc (default seu), the program with PROG=<name> (default hello).
@@ -33,8 +35,10 @@ VFLAGS  := --binary -Wno-fatal --top-module tb_soc -j 0
 SIMBIN  := obj_dir/Vtb_soc
 MAXCYC  ?= 1000000
 PYTHON  ?= $(HOME)/.venv/bin/python
+VARIANT ?= h0
+TARGETS := studies/$(STUDY)/targets
 
-.PHONY: all sw sim wave golden check lockstep gate1 smoke campaign figures synth clean
+.PHONY: all sw sim wave golden check lockstep gate1 ffs targets smoke campaign figures synth clean
 all: sim
 
 sw: $(HEX)
@@ -79,6 +83,14 @@ lockstep:
 	done
 
 gate1: golden lockstep
+
+# Fault targets (see docs/learning/phase4.md): Yosys flip-flop list, then the descriptor
+# check (every flip-flop bit in exactly one unit, or excluded with a reason).
+ffs:
+	$(PYTHON) platform/synth/list_ffs.py --top soc --out $(TARGETS)/ff_list_$(VARIANT).json $(RTL)
+
+targets:
+	$(PYTHON) platform/fi/descriptor.py $(TARGETS)/soc_$(VARIANT).yaml
 
 smoke campaign figures synth:
 	@echo "make $@: not implemented yet (see docs/platform.md)"; exit 1

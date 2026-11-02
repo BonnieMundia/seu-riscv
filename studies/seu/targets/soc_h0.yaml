@@ -1,0 +1,54 @@
+# Fault targets of the SEU study, variant H0 (baseline PicoRV32 SoC).
+# Checked by: make targets  (platform/fi/descriptor.py). Every flip-flop bit in
+# ff_list must land in exactly one unit or be excluded, or the check fails.
+# Why each choice was made: studies/seu/docs/decisions.md (2 Nov 2026).
+
+ff_list: ff_list_h0.json          # from `make ffs` (platform/synth/list_ffs.py, Yosys)
+sim_prefix: tb_soc.dut            # Yosys "cpu.reg_pc" -> simulator "tb_soc.dut.cpu.reg_pc"
+
+# Register file: one memory, injected word by word (32 bits per word).
+memories:
+  cpu.cpuregs:
+    unit: regfile
+    words: [1, 31]                # x1..x31; x0 is never written or read (picorv32.v ~1337, ~1352)
+  ram:
+    exclude: "RAM is assumed ECC-protected (CLAUDE.md, key assumptions)"
+
+# Flip-flops left out on purpose. Without `bits`, the whole signal is excluded.
+exclude:
+  - {signal: mem_ready, reason: "SoC memory controller, not the core"}
+  - {signal: mem_rdata, reason: "SoC memory controller (RAM read data); RAM side assumed ECC"}
+  - {signal: out_data,  reason: "test harness output port (observation point)"}
+  - {signal: out_valid, reason: "test harness output port (observation point)"}
+  - {signal: done,      reason: "test harness done flag (observation point)"}
+  - {signal: bad_addr,  reason: "debug flag of the SoC, not the core"}
+  - {signal: cpu.reg_pc,      bits: [0],    reason: "constant 0 in the gate-level netlist (no compressed ISA)"}
+  - {signal: cpu.reg_next_pc, bits: [0],    reason: "constant 0 in the gate-level netlist (no compressed ISA)"}
+  - {signal: cpu.mem_addr,    bits: [0, 1], reason: "always 0: word-aligned bus address (picorv32.v line 382)"}
+
+# The seven units of RQ1. Patterns use shell-style wildcards (cpu.instr_* = all instr_ flags).
+units:
+  pc:
+    - cpu.reg_pc
+    - cpu.reg_next_pc
+  control:                        # main state machine + what the current instruction will do next
+    - cpu.cpu_state
+    - cpu.trap
+    - cpu.latched_*
+  decoder:                        # decoded instruction: one-hot flags, immediates, register numbers
+    - cpu.instr_*
+    - cpu.is_*
+    - cpu.decoded_*
+    - cpu.decoder_trigger
+    - cpu.decoder_pseudo_trigger
+  alu:                            # operands, results, shift counter
+    - cpu.reg_op1
+    - cpu.reg_op2
+    - cpu.reg_out
+    - cpu.alu_out_q
+    - cpu.reg_sh
+  memif:                          # memory interface of the core
+    - cpu.mem_*
+  counters:                       # rdcycle / rdinstret counters (64-bit each)
+    - cpu.count_cycle
+    - cpu.count_instr

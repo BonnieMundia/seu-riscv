@@ -1,0 +1,1177 @@
+{
+ "top": "soc",
+ "yosys": "Yosys 0.69+post (git sha1 143eb14f9cc55d6f8927e68523b0c9d2166ed02c, Release, AppleClang clang++ 21.0.0.21000334)",
+ "sources": [
+  "platform/rtl/picorv32/picorv32.v",
+  "platform/rtl/soc/soc.v"
+ ],
+ "ff_bits": 647,
+ "ffs": [
+  {
+   "signal": "bad_addr",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.alu_out_q",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ]
+  },
+  {
+   "signal": "cpu.count_cycle",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+   ]
+  },
+  {
+   "signal": "cpu.count_instr",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31,
+    32,
+    33,
+    34,
+    35,
+    36,
+    37,
+    38,
+    39,
+    40,
+    41,
+    42,
+    43,
+    44,
+    45,
+    46,
+    47,
+    48,
+    49,
+    50,
+    51,
+    52,
+    53,
+    54,
+    55,
+    56,
+    57,
+    58,
+    59,
+    60,
+    61,
+    62,
+    63
+   ]
+  },
+  {
+   "signal": "cpu.cpu_state",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+   ]
+  },
+  {
+   "signal": "cpu.decoded_imm",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ]
+  },
+  {
+   "signal": "cpu.decoded_imm_j",
+   "bits": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20
+   ],
+   "also": {
+    "20": [
+     21,
+     22,
+     23,
+     24,
+     25,
+     26,
+     27,
+     28,
+     29,
+     30,
+     31
+    ]
+   }
+  },
+  {
+   "signal": "cpu.decoded_rd",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  {
+   "signal": "cpu.decoded_rs1",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  {
+   "signal": "cpu.decoded_rs2",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  {
+   "signal": "cpu.decoder_pseudo_trigger",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.decoder_trigger",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_add",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_addi",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_and",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_andi",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_auipc",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_beq",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_bge",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_bgeu",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_blt",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_bltu",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_bne",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_fence",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_jal",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_jalr",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_lb",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_lbu",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_lh",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_lhu",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_lui",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_lw",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_or",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_ori",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_rdcycle",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_rdcycleh",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_rdinstr",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_rdinstrh",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_sb",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_sh",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_sll",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_slli",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_slt",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_slti",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_sltiu",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_sltu",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_sra",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_srai",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_srl",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_srli",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_sub",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_sw",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_xor",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.instr_xori",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_alu_reg_imm",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_alu_reg_reg",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_beq_bne_blt_bge_bltu_bgeu",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_compare",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_jalr_addi_slti_sltiu_xori_ori_andi",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_lb_lh_lw_lbu_lhu",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_lbu_lhu_lw",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_lui_auipc_jal",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_lui_auipc_jal_jalr_addi_add_sub",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_sb_sh_sw",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_sll_srl_sra",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_slli_srli_srai",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_slti_blt_slt",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.is_sltiu_bltu_sltu",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.latched_branch",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.latched_is_lb",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.latched_is_lh",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.latched_is_lu",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.latched_rd",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  {
+   "signal": "cpu.latched_stalu",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.latched_store",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.mem_addr",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ]
+  },
+  {
+   "signal": "cpu.mem_do_prefetch",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.mem_do_rdata",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.mem_do_rinst",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.mem_do_wdata",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.mem_rdata_q",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ]
+  },
+  {
+   "signal": "cpu.mem_state",
+   "bits": [
+    0,
+    1
+   ]
+  },
+  {
+   "signal": "cpu.mem_valid",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "cpu.mem_wdata",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ]
+  },
+  {
+   "signal": "cpu.mem_wordsize",
+   "bits": [
+    0,
+    1
+   ]
+  },
+  {
+   "signal": "cpu.mem_wstrb",
+   "bits": [
+    0,
+    1,
+    2,
+    3
+   ]
+  },
+  {
+   "signal": "cpu.reg_next_pc",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ]
+  },
+  {
+   "signal": "cpu.reg_op1",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ]
+  },
+  {
+   "signal": "cpu.reg_op2",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ]
+  },
+  {
+   "signal": "cpu.reg_out",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ]
+  },
+  {
+   "signal": "cpu.reg_pc",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ]
+  },
+  {
+   "signal": "cpu.reg_sh",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4
+   ]
+  },
+  {
+   "signal": "cpu.trap",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "done",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "mem_rdata",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ]
+  },
+  {
+   "signal": "mem_ready",
+   "bits": [
+    0
+   ]
+  },
+  {
+   "signal": "out_data",
+   "bits": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+   ]
+  },
+  {
+   "signal": "out_valid",
+   "bits": [
+    0
+   ]
+  }
+ ],
+ "memories": [
+  {
+   "name": "cpu.cpuregs",
+   "width": 32,
+   "depth": 32,
+   "offset": 0
+  },
+  {
+   "name": "ram",
+   "width": 32,
+   "depth": 16384,
+   "offset": 0
+  }
+ ]
+}
