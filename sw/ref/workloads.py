@@ -75,11 +75,45 @@ def w3_crc32():
     return [zlib.crc32(b"123456789"), zlib.crc32(bytes(buf))]
 
 
+def w4_attitude(trace=None):
+    # Line-by-line mirror of w4_attitude.c. Python's >> on negative ints is an arithmetic
+    # shift (rounds toward minus infinity), the same as GCC's >> on int32_t (sra).
+    # Values stay far below 2^31, so no 32-bit wrap-around ever happens (asserted).
+    def field(w, lo, bits):
+        return ((w >> lo) & ((1 << bits) - 1)) - (1 << (bits - 1))
+
+    def sat(v, lim):
+        return max(-lim, min(lim, v))
+
+    bias = [655, -983, 1311]
+    rate, truth, est, u = [0] * 3, [0] * 3, [0] * 3, [0] * 3
+    seed, cs = 0xA77170DE, 0
+    for _ in range(200):
+        step_sum = 0
+        for ax in range(3):
+            w, seed = xorshift32(seed)
+            rate[ax] = sat(rate[ax] + (u[ax] >> 4) + field(w, 0, 12), 1 << 16)
+            truth[ax] += rate[ax] >> 6
+            gyro = rate[ax] + bias[ax] + field(w, 12, 10)
+            est[ax] += gyro >> 6
+            if ax < 2:
+                acc = truth[ax] + field(w, 22, 10)
+                est[ax] += (acc - est[ax]) >> 5
+            u[ax] = sat(-(est[ax] + (est[ax] >> 1)) - (gyro >> 2), 1 << 15)
+            assert all(abs(x) < 2**31 for x in (rate[ax], truth[ax], est[ax], gyro))
+            step_sum = (step_sum + ((est[ax] ^ u[ax]) & M32)) & M32
+        cs = mix(cs, step_sum)
+        if trace is not None:
+            trace.append((list(truth), list(est)))
+    return [cs]
+
+
 # Workload name (= sw/<name>.c) -> function returning the expected OUT values, in order.
 WORKLOADS = {
     "w1_matmul": w1_matmul,
     "w2_qsort": w2_qsort,
     "w3_crc32": w3_crc32,
+    "w4_attitude": w4_attitude,
 }
 
 if __name__ == "__main__":

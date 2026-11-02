@@ -219,3 +219,57 @@ Then tell me. I review the diff, and after review we merge into `main`.
 
 Source: Cormen et al., *Introduction to Algorithms*, ch. 7 "Quicksort" (Lomuto partition);
 RISC-V Unprivileged ISA spec, RV32I "Conditional Branches" (`BLT` vs `BLTU`).
+
+---
+
+## 10. W4: fixed-point attitude filter + attitude hold, 200 steps (`sw/w4_attitude.c`)
+
+**What it simulates, per step and per axis (roll, pitch, yaw):** a plant (true rate and
+angle, pushed by the actuator command plus a random disturbance), sensors (gyro = rate +
+bias + noise; accelerometer angle for roll/pitch = angle + noise), a **complementary
+filter** (integrate the gyro, then move 1/32 of the way toward the accelerometer angle),
+and a **PD controller** `u = −(1.5·angle + 0.25·rate)`, saturated at ±0.5.
+
+**Fixed point (Q16.16):** a real number x is stored as the integer x·65536. 1.0 = 65536,
+0.01 = 655. Adding works as normal; multiplying by 1/64 is `>> 6`. Python's `>>` on
+negative numbers and GCC's `>>` on `int32_t` (the `sra` instruction) both round toward
+minus infinity, so the C code and the Python mirror agree bit for bit.
+
+**No multiplies at all** (`grep __mulsi3 sw/build/w4_attitude.dis` finds nothing): dt =
+1/64, filter gain = 1/32, controller gains 1.5 = 1 + 1/2 and 0.25 = 1/4, all done with shifts
+and adds. That's standard practice on small flight-control CPUs, and here it's essential:
+one signed software multiply can cost ~800 cycles.
+
+**Getting inside the cycle budget (measured, all versions correct):**
+
+| version | cycles |
+|---|---|
+| 3 `xorshift32` calls per axis, 2 `mix` calls per axis | 242,986 ❌ |
+| 1 `xorshift32` per axis, noise cut from bit fields 0–11 / 12–21 / 22–31 | 207,768 ❌ |
+| + one `mix` per axis of `est ^ u` | 199,992 (8-cycle margin, too fragile) |
+| + one `mix` per **step** of Σ(`est ^ u`) | **192,392** ✅ checksum `0x8ec3e146` |
+
+Lesson: on PicoRV32 **shifts by many bits are expensive** (no barrel shifter: README CPI
+table, 4–14 cycles), and xorshift/mix are made of them. Count shifts when you need speed.
+
+**Does the filter work?** (from the Python trace, `w4_attitude(trace)`): roll/pitch
+estimate error RMS 0.005 / 0.008 rad after step 50; yaw drifts to +0.06 rad (no
+accelerometer reference for yaw, so the gyro bias integrates: realistic). The controller
+keeps all true angles below 0.1 rad.
+
+**Unlike W2/W3, the reference is a line-by-line mirror** (there's no standard library
+for "this filter"). It's still independent of the CPU and compiler, and it asserts that no
+value ever reaches 2³¹, so 32-bit wrap-around can't hide a mismatch.
+
+### Do it yourself
+1. Convert by hand: what is 0.25 rad/s in Q16.16? What real value is `est = -3277`?
+   *Check:* 16384; about −0.05 rad.
+2. Why is `-7 >> 1` equal to −4 and not −3? Try it in Python, then find the `srai` in
+   `w4_attitude.dis`.
+3. On a play branch, set the yaw bias to 0 in **both** files. Predict the yaw drift, then
+   measure with the trace snippet above. *Expect:* `make check` PASS (new checksum), and
+   much smaller yaw error.
+
+Sources: Mahony, Hamel & Pflimlin, "Nonlinear complementary filters on the special
+orthogonal group", IEEE Trans. Automatic Control 53(5), 2008 (the complementary-filter
+idea); PicoRV32 README, "Cycles per Instruction Performance" (shift cost).

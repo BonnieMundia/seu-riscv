@@ -26,5 +26,14 @@
     "cycles": 119032,
     "match_reference": true,
     "in_budget": true
+  },
+  "w4_attitude": {
+    "outputs": [
+      "8ec3e146"
+    ],
+    "status": "DONE",
+    "cycles": 192392,
+    "match_reference": true,
+    "in_budget": true
   }
 }
