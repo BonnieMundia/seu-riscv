@@ -1,6 +1,6 @@
 // soc.v - minimal SoC: PicoRV32 (plain RV32I) + 64 KB RAM + output/done ports.
 //
-// Memory map (see docs/decisions.md):
+// Memory map (see studies/seu/docs/decisions.md):
 //   0x0000_0000 - 0x0000_FFFF  64 KB RAM (program + stack)
 //   0x1000_0000                output port (each write is logged as a result)
 //   0x1000_0004                done port   (any write ends the run)
@@ -77,7 +77,7 @@ module soc #(
 
     // Program image: pass +hex=<file> at run time (default: program.hex).
     // Format: objcopy -O verilog --verilog-data-width=4 (word addresses, one
-    // 32-bit word per entry) - see docs/decisions.md.
+    // 32-bit word per entry) - see studies/seu/docs/decisions.md.
     reg [8*256-1:0] hexfile;
     initial begin
         if (!$value$plusargs("hex=%s", hexfile))

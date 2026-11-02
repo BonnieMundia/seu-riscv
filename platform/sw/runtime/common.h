@@ -4,7 +4,7 @@
 //   1. build its input data deterministically (same data on every run),
 //   2. do the work,
 //   3. fold the results into one 32-bit checksum and write it to OUT_PORT once.
-// sw/ref/workloads.py computes the same checksum in Python to check the result.
+// studies/<study>/sw/ref/workloads.py computes the same checksum in Python.
 #ifndef COMMON_H
 #define COMMON_H
 

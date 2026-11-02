@@ -1,44 +1,51 @@
-# seu-riscv top-level Makefile
-#   make sw     - compile sw/$(PROG).c to ELF + hex
-#   make sim    - build the Verilator simulation and run $(PROG)
-#   make wave   - same as sim, but also dump tb_soc.vcd
-#   make check  - run every workload and compare with the Python reference
-#   make lockstep - cocotb: RTL must match the golden ISS instruction by instruction
-#                   (all workloads, or W=w1_matmul); run `make check` first
-#   make gate1  - check + lockstep (the Gate 1 criterion)
-#   make clean  - remove build outputs
-# Choose a program with PROG=<name> (default: hello).
+# Top-level Makefile: shared platform + studies (see docs/platform.md).
+#   make sw PROG=x        compile x.c (from studies/$(STUDY)/sw/ or platform/tests/sw/) to ELF + hex
+#   make sim PROG=x       build the Verilator SoC simulation and run x
+#   make wave PROG=x      same as sim, but also dump tb_soc.vcd
+#   make golden           run every workload of $(STUDY), compare with its Python reference,
+#                         check the cycle budget, write studies/$(STUDY)/results/golden_runs.json
+#   make lockstep [W=x]   cocotb: RTL must match the golden ISS instruction by instruction
+#                         (all workloads of $(STUDY) + platform tests); run `make golden` first
+#   make gate1            golden + lockstep (the Gate 1 criterion)
+#   make clean            remove build outputs
+#   (check = golden, kept as an alias)
+# Choose the study with STUDY=seu|hdc (default seu), the program with PROG=<name> (default hello).
 
+STUDY   ?= seu
 PROG    ?= hello
 PREFIX  := riscv64-unknown-elf-
 CC      := $(PREFIX)gcc
 OBJCOPY := $(PREFIX)objcopy
 OBJDUMP := $(PREFIX)objdump
-CFLAGS  := -march=rv32i -mabi=ilp32 -O2 -nostdlib -ffreestanding -Wall
-LDFLAGS := -T sw/link.ld -Wl,--no-warn-rwx-segments -lgcc
+RUNTIME := platform/sw/runtime
+CFLAGS  := -march=rv32i -mabi=ilp32 -O2 -nostdlib -ffreestanding -Wall -I$(RUNTIME)
+LDFLAGS := -T $(RUNTIME)/link.ld -Wl,--no-warn-rwx-segments -lgcc
 
-SWB     := sw/build
+# Program source: the study's sw/ first, then the platform test programs.
+SRC     := $(firstword $(wildcard studies/$(STUDY)/sw/$(PROG).c platform/tests/sw/$(PROG).c))
+SWB     := build/$(STUDY)
 ELF     := $(SWB)/$(PROG).elf
 HEX     := $(SWB)/$(PROG).hex
 
-RTL     := rtl/picorv32.v rtl/soc.v
-TB      := tb/tb_soc.v
+RTL     := platform/rtl/picorv32/picorv32.v platform/rtl/soc/soc.v
+TB      := platform/rtl/soc/tb_soc.v
 VFLAGS  := --binary -Wno-fatal --top-module tb_soc -j 0
 SIMBIN  := obj_dir/Vtb_soc
 MAXCYC  ?= 1000000
 PYTHON  ?= $(HOME)/.venv/bin/python
 
-.PHONY: all sw sim wave check lockstep gate1 clean
+.PHONY: all sw sim wave golden check lockstep gate1 smoke campaign figures synth clean
 all: sim
 
 sw: $(HEX)
 
-$(ELF): sw/crt0.S sw/$(PROG).c sw/common.h sw/link.ld | $(SWB)
-	$(CC) $(CFLAGS) sw/crt0.S sw/$(PROG).c $(LDFLAGS) -o $@
+$(ELF): $(RUNTIME)/crt0.S $(SRC) $(RUNTIME)/common.h $(RUNTIME)/link.ld | $(SWB)
+	@test -n "$(SRC)" || { echo "no source for PROG=$(PROG) in studies/$(STUDY)/sw or platform/tests/sw"; exit 1; }
+	$(CC) $(CFLAGS) $(RUNTIME)/crt0.S $(SRC) $(LDFLAGS) -o $@
 	$(OBJDUMP) -d $@ > $(SWB)/$(PROG).dis
 
 # Word-addressed, one 32-bit little-endian word per entry: loads directly into
-# soc.v's ram[] with $readmemh (checked with binutils 2.46, see docs/decisions.md).
+# soc.v's ram[] with $readmemh (checked with binutils 2.46, see studies/seu/docs/decisions.md).
 $(HEX): $(ELF)
 	$(OBJCOPY) -O verilog --verilog-data-width=4 $< $@
 
@@ -55,20 +62,27 @@ wave: $(HEX)
 	verilator $(VFLAGS) --trace -Mdir obj_dir_trace $(RTL) $(TB)
 	./obj_dir_trace/Vtb_soc +hex=$(HEX) +max_cycles=$(MAXCYC) +vcd
 
-check:
-	$(PYTHON) tb/check_workloads.py
+golden:
+	$(PYTHON) platform/tests/check_golden.py --study $(STUDY)
 
-WORKLOADS := $(shell $(PYTHON) -c "import sys; sys.path.insert(0, 'sw/ref'); from workloads import WORKLOADS, TESTS; print(' '.join([*WORKLOADS, *TESTS]))")
-W ?= $(WORKLOADS)
+check: golden
+
+# Lockstep list: the study's workloads + the platform test programs.
+LOCKSTEP_LIST := $(shell $(PYTHON) platform/tests/list_programs.py --study $(STUDY))
+W ?= $(LOCKSTEP_LIST)
 
 lockstep:
 	@for w in $(W); do \
-	  $(MAKE) -s sw PROG=$$w >/dev/null && \
-	  PATH="$(HOME)/.venv/bin:$$PATH" $(MAKE) -s -C tb/cocotb WORKLOAD=$$w \
-	    COCOTB_PLUSARGS=+hex=$(CURDIR)/sw/build/$$w.hex || exit 1; \
+	  $(MAKE) -s sw STUDY=$(STUDY) PROG=$$w >/dev/null && \
+	  PATH="$(HOME)/.venv/bin:$$PATH" $(MAKE) -s -C platform/tests/cocotb WORKLOAD=$$w STUDY=$(STUDY) \
+	    COCOTB_PLUSARGS=+hex=$(CURDIR)/$(SWB)/$$w.hex || exit 1; \
 	done
 
-gate1: check lockstep
+gate1: golden lockstep
+
+smoke campaign figures synth:
+	@echo "make $@: not implemented yet (see docs/platform.md)"; exit 1
 
 clean:
-	rm -rf obj_dir obj_dir_trace $(SWB) tb_soc.vcd tb/cocotb/sim_build tb/cocotb/results.xml
+	rm -rf obj_dir obj_dir_trace build tb_soc.vcd \
+	       platform/tests/cocotb/sim_build platform/tests/cocotb/results.xml

@@ -1,7 +1,12 @@
 # Platform + studies: migration plan
 
-Status: **PLAN ONLY — not executed.** Execute in the first working session after Gate 1
-passes (target Mon 9 Nov 2026), timeboxed to one day, by Session SEU.
+Status: **EXECUTED on Mon 2 Nov 2026** (brought forward from 9 Nov after Gate 1 was
+signed off), on branch `restructure`, merged into main by fast-forward; tag
+`pre-restructure` marks the old layout. Sections 3–6 are kept as the record of what was
+done. Differences from the plan: `hello.c` and `isa_test.c` are platform test programs
+with expected outputs in `platform/tests/sw/tests_ref.py`; `platform/tests/programs.py` is
+the one place that knows where programs and references live; `make golden` replaces
+`make check` (kept as an alias).
 After execution this file becomes the platform description (descriptors, classifier hook,
 results schema, trace export); those sections are stubs until the injector exists.
 

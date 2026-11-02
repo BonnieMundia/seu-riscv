@@ -1,8 +1,8 @@
 """Lockstep test: the RTL must do exactly what the golden ISS does, instruction by instruction.
 
-Run via `make lockstep` (all workloads) or `make lockstep W=w1_matmul`.
+Run via `make lockstep STUDY=seu` (all workloads + platform tests) or `make lockstep W=w1_matmul`.
 
-The ISS (model/rv32i_iss.py) runs the ELF first and records three streams:
+The ISS (platform/model/rv32i_iss.py) runs the ELF first and records three streams:
   - the PC of every executed instruction,
   - every register write (rd, value) to x1..x31,
   - every store (word address, byte strobes, data).
@@ -31,10 +31,10 @@ import cocotb
 from cocotb.clock import Clock
 from cocotb.triggers import ClockCycles, FallingEdge
 
-ROOT = pathlib.Path(__file__).resolve().parents[2]
-sys.path[:0] = [str(ROOT / "model"), str(ROOT / "sw" / "ref")]
+HERE = pathlib.Path(__file__).resolve()
+sys.path[:0] = [str(HERE.parents[2] / "model"), str(HERE.parents[1])]
+from programs import build_dir, golden_path, load  # noqa: E402
 from rv32i_iss import RV32I  # noqa: E402
-from workloads import TESTS, WORKLOADS  # noqa: E402
 
 MAX_CYCLES = 1_000_000
 
@@ -53,7 +53,9 @@ def first_diff(a, b):
 @cocotb.test()
 async def lockstep(dut):
     name = os.environ["WORKLOAD"]
-    elf = ROOT / "sw" / "build" / f"{name}.elf"
+    study = os.environ.get("STUDY", "seu")
+    WORKLOADS, TESTS = load(study)
+    elf = build_dir(study) / f"{name}.elf"
 
     iss = RV32I(str(elf)).run(trace=True)
     assert iss.status == "DONE", f"ISS did not finish: {iss.status} {iss.trap_reason}"
@@ -125,7 +127,7 @@ async def lockstep(dut):
     # edges counted here (which includes that edge).
     tb_cycles = cycles - 1
     if name in WORKLOADS:                     # test programs have no golden cycle count
-        golden = json.loads((ROOT / "results" / "golden_runs.json").read_text())
+        golden = json.loads(golden_path(study).read_text())
         assert tb_cycles == golden[name]["cycles"], (
             f"cycles {tb_cycles} != golden {golden[name]['cycles']} (tb_soc.v convention)")
     dut._log.info(f"{name}: LOCKSTEP PASS ({extra} instruction(s) started after done)")

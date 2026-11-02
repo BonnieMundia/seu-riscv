@@ -1,10 +1,11 @@
 """Golden model: a Python RV32I instruction-set simulator (ISS) of our SoC.
 
 It runs the same ELF as the RTL and records, per executed instruction, what the CPU must
-do: the PC, register writes and memory stores. tb/test_lockstep.py (cocotb) compares the
+do: the PC, register writes and memory stores. platform/tests/cocotb/test_lockstep.py compares the
 RTL against this, instruction by instruction.
 
-What it copies from the hardware (rtl/soc.v + PicoRV32 parameters in docs/decisions.md):
+What it copies from the hardware (platform/rtl/soc/soc.v + PicoRV32 parameters in
+studies/seu/docs/decisions.md):
   - reset: pc = 0 (PROGADDR_RESET), x2 = 0x10000 (STACKADDR), other registers 0
     (the RTL leaves them undefined; crt0.S zeroes them before they are read);
   - memory: 64 KB RAM at 0; reads elsewhere return 0; stores elsewhere are ignored;
@@ -14,7 +15,7 @@ What it copies from the hardware (rtl/soc.v + PicoRV32 parameters in docs/decisi
 Not modelled (no workload uses them; raises NotImplementedError so it can't go unnoticed):
 FENCE and the RDCYCLE/RDTIME/RDINSTRET counter instructions.
 
-Usage:  python model/rv32i_iss.py sw/build/w1_matmul.elf
+Usage:  python platform/model/rv32i_iss.py build/seu/w1_matmul.elf
 """
 
 import sys

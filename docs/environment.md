@@ -24,3 +24,10 @@ PicoRV32 upstream commit: ef203c2b0a3fb793280f5114941416c425c5b461
   Needed by Gate 3 (18 Dec). Version: TBD.
 - Waveform viewer (GTKWave / Surfer): not found. Needed only for debugging.
 - Python venv uses Python 3.9.6 (macOS system Python). Works today; consider 3.11+ later.
+
+## Python packages
+Pinned in `platform/requirements.lock` (`~/.venv/bin/python -m pip freeze`, 2026-11-02).
+Quirk: `~/.venv/bin/pip` (and `pip3.14`, dated 8 Oct) point at a different Python and see
+no packages; always use `~/.venv/bin/python -m pip`. Neither
+session upgrades packages; changes go through a platform request.
+PicoRV32 upstream commit: `platform/rtl/picorv32/UPSTREAM_COMMIT`.

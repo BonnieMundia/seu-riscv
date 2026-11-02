@@ -50,7 +50,7 @@ Three ideas to hold on to:
 
 ## 2. File by file
 
-### 2.1 `sw/hello.c`
+### 2.1 `platform/tests/sw/hello.c`
 ```c
 #define OUT_PORT (*(volatile unsigned *)0x10000000)
 OUT_PORT = 0xC0FFEE;
@@ -61,7 +61,7 @@ OUT_PORT = 0xC0FFEE;
   Without it, `-O2` may delete a write whose value is never read back.
 - `return 0` hands control back to `crt0.S`.
 
-### 2.2 `sw/crt0.S` (C runtime zero = startup code)
+### 2.2 `platform/sw/runtime/crt0.S` (C runtime zero = startup code)
 The CPU begins at address 0 after reset (`PROGADDR_RESET = 0`). C code can't run until
 some setup is done, so these few assembly lines run first:
 1. **Zero x1, x3–x31.** PicoRV32 doesn't clear its 32 registers on reset (it would cost
@@ -78,7 +78,7 @@ some setup is done, so these few assembly lines run first:
 `.section .text.start` puts this code in a specially-named section so the linker script
 can force it to address 0.
 
-### 2.3 `sw/link.ld` (linker script)
+### 2.3 `platform/sw/runtime/link.ld` (linker script)
 The linker decides *where in memory* each piece of the program goes.
 - `MEMORY { RAM : ORIGIN = 0, LENGTH = 64K }` describes our only memory.
 - `KEEP(*(.text.start))` first, so `_start` sits at address 0 where the CPU begins.
@@ -91,7 +91,7 @@ The linker decides *where in memory* each piece of the program goes.
   multiply), `-nostdlib` = no C library (we have no OS), `-ffreestanding` = don't assume
   standard library functions exist, `-lgcc` = link GCC's helper library, which supplies
   software multiply/divide (needed from Phase 2, since RV32I has no MUL instruction).
-- `objdump -d` writes `sw/build/hello.dis`: the actual machine instructions. Read this
+- `objdump -d` writes `build/seu/hello.dis`: the actual machine instructions. Read this
   file often; it's the truth about what the CPU runs.
 - `objcopy -O verilog --verilog-data-width=4` makes the hex file (see 2.5).
 - `make sim` builds the simulator with Verilator and runs it. `make wave` also records a
@@ -99,7 +99,7 @@ The linker decides *where in memory* each piece of the program goes.
 - Make only rebuilds what changed (it compares file timestamps).
 
 ### 2.5 The hex file and `$readmemh`
-`sw/build/hello.hex` looks like:
+`build/seu/hello.hex` looks like:
 ```
 @00000000
 00000093 00000193 00000213 ...
@@ -110,11 +110,11 @@ The linker decides *where in memory* each piece of the program goes.
 - Each entry is one 32-bit word. `00000093` is the instruction `li x1, 0` (= `addi x1, x0, 0`).
 - `$readmemh(file, ram)` in soc.v reads it into `ram[]` before the simulation starts.
 
-### 2.6 `rtl/soc.v` (the "system on chip")
+### 2.6 `platform/rtl/soc/soc.v` (the "system on chip")
 - **`picorv32 #( ... ) cpu ( ... )`**: creates one CPU. The `#( )` list sets
   *parameters*: fixed choices made before the hardware is built (like compile-time
   constants). We set every one explicitly so the configuration is visible and recorded
-  (docs/decisions.md). Unused inputs (`irq`, `pcpi_*`) are tied to 0 so the simulator
+  (studies/seu/docs/decisions.md). Unused inputs (`irq`, `pcpi_*`) are tied to 0 so the simulator
   and the synthesis tool see the same hardware.
 - **`reg [31:0] ram [0:16383]`**: 16,384 words × 4 bytes = 64 KB.
 - **The memory handshake (most important part).** The CPU sets `mem_valid=1` with
@@ -134,7 +134,7 @@ The linker decides *where in memory* each piece of the program goes.
   `0x1000_0004` + write → `done`; anything else → read 0 and set `bad_addr` (useful later,
   when injected faults make the CPU jump to strange addresses).
 
-### 2.7 `tb/tb_soc.v` (testbench)
+### 2.7 `platform/rtl/soc/tb_soc.v` (testbench)
 A testbench is Verilog that isn't hardware: it drives the clock/reset and watches outputs.
 - `always #5 clk = ~clk;` toggles the clock every 5 time units (period 10).
 - Hold `resetn = 0` for 5 cycles, then release.
@@ -174,14 +174,14 @@ the "hang = more than 2x golden cycles" rule depends on them.
 
 ## 4. Do it yourself
 
-1. **Read the machine code.** Open `sw/build/hello.dis`, find `<main>`. Explain why
+1. **Read the machine code.** Open `build/seu/hello.dis`, find `<main>`. Explain why
    `lui a5,0xc10` then `addi a5,a5,-18` makes `0xC0FFEE`.
    *Check:* 0xc10 << 12 = 0xC10000; 0xC10000 − 18 = ?
 2. **Two outputs.** In `hello.c` write `0x1234` then `0xC0FFEE`. Predict the output lines
    and whether the cycle count goes up or down, then `make sim`.
    *Expect:* two `OUT` lines, and more cycles (one extra `lui`/`addi`/`sw` group ≈ 3 instructions).
 3. **Break the start address (two steps).**
-   (a) In the `Makefile` swap the source order to `sw/$(PROG).c sw/crt0.S`, then
+   (a) In the `Makefile` swap the source order to `sw/$(PROG).c platform/sw/runtime/crt0.S`, then
    `make clean sim`. *Expect:* still `DONE cycles=191`, and `hello.dis` still starts with
    `<_start>` at 0. Why? Because the `KEEP(*(.text.start))` line in `link.ld` forces it.
    (b) Now also delete that `KEEP(*(.text.start))` line and `make clean sim`.
@@ -195,7 +195,7 @@ the "hang = more than 2x golden cycles" rule depends on them.
    `dut.mem_addr`, `dut.mem_instr`. Find the store to `10000000` and count the cycles
    between `mem_valid` going high and `mem_ready` going high. *Expect:* 1.
 6. **Second opinion.** Run the same program on Icarus:
-   `iverilog -g2012 -o /tmp/tb rtl/picorv32.v rtl/soc.v tb/tb_soc.v && vvp -n /tmp/tb +hex=sw/build/hello.hex`
+   `iverilog -g2012 -o /tmp/tb platform/rtl/picorv32/picorv32.v platform/rtl/soc/soc.v platform/rtl/soc/tb_soc.v && vvp -n /tmp/tb +hex=build/seu/hello.hex`
    *Expect:* the same `OUT` and `DONE cycles=191`.
 
 Undo everything afterwards: `git restore . && make clean`.
@@ -237,7 +237,7 @@ Undo everything afterwards: `git restore . && make clean`.
 5. What is the difference between `DONE`, `TRAP` and `HANG`, and which fault outcome will
    each become in the study?
 6. Why is the hello-world 191 cycles and not about 141?
-7. Why is RAM never a fault-injection target in this study? (see docs/decisions.md)
+7. Why is RAM never a fault-injection target in this study? (see studies/seu/docs/decisions.md)
 
 ---
 

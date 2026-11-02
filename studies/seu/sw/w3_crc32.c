@@ -3,7 +3,7 @@
 // CRC-32/ISO-HDLC, the Ethernet / zip / Python zlib.crc32 CRC: reflected polynomial
 // 0xEDB88320, start value 0xFFFFFFFF, final XOR 0xFFFFFFFF.
 // Implementation: 16-entry ("nibble") table, 4 bits per step. Measured on this SoC
-// (docs/decisions.md 2026-10-26): bit-by-bit 483,740 cycles and a 256-entry table
+// (studies/seu/docs/decisions.md 2026-10-26): bit-by-bit 483,740 cycles and a 256-entry table
 // 203,291 cycles are both over the 200k budget; this version is ~119k.
 // Outputs: 1) CRC of "123456789" = the standard check value 0xCBF43926 (self-test),
 //          2) CRC of a 1 KB pseudo-random buffer.

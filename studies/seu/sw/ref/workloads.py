@@ -1,6 +1,7 @@
 """Independent Python references for the workloads (W1-W5).
 
-Each function recomputes, in plain Python, the checksum its C workload should report.
+Each function recomputes, in plain Python, the checksum its C workload should report
+(studies/seu/sw/<name>.c).
 No CPU, compiler or simulator is involved, so a match means the C program AND the
 hardware produced the right answer. These values are what `make check` compares against.
 
@@ -149,28 +150,13 @@ def w5_adsb_crc24():
     return [sum(s == 0 for s in syndromes), cs]
 
 
-# Workload name (= sw/<name>.c) -> function returning the expected OUT values, in order.
+# Workload name (= studies/seu/sw/<name>.c) -> function returning the expected OUT values.
 WORKLOADS = {
     "w1_matmul": w1_matmul,
     "w2_qsort": w2_qsort,
     "w3_crc32": w3_crc32,
     "w4_attitude": w4_attitude,
     "w5_adsb_crc24": w5_adsb_crc24,
-}
-
-def isa_test():
-    # Hand-computed expected values for sw/isa_test.c (see the comments there).
-    return [1, 0, 0x8000_0000, 0xF800_0000, 0x2345_6780,
-            1, 0x1234, 0xFFFF_FFFF,
-            1, 0,
-            0xFFFF_FFFF, 0xFFFF_FF80, 0xFFFF_FFFE, 0x0000_7FF0,
-            0, 0x1000]
-
-
-# Test programs: checked by `make lockstep` (outputs + RTL-vs-ISS), but they are not
-# workloads (no cycle budget, not in golden_runs.json, never fault-injected).
-TESTS = {
-    "isa_test": isa_test,
 }
 
 if __name__ == "__main__":

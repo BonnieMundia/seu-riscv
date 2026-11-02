@@ -17,7 +17,7 @@ build inputs (fixed seed)  →  do the work  →  checksum  →  report() to OUT
 and next to it, in Python:
 
 ```
-sw/ref/workloads.py: same inputs → same work → same checksum   (no CPU involved)
+studies/seu/sw/ref/workloads.py: same inputs → same work → same checksum   (no CPU involved)
 ```
 
 `make check` runs both and compares. **Why both?** A CPU that prints *a* number proves
@@ -27,7 +27,7 @@ outputs (Masked = same output, SDC = different output), so they must be correct.
 
 ---
 
-## 2. `sw/common.h`: shared helpers
+## 2. `platform/sw/runtime/common.h`: shared helpers
 
 - **`OUT_PORT` / `report()`**: the `volatile` output port from Phase 1 (see phase1.md Q4:
   without `volatile` the compiler may delete writes).
@@ -44,14 +44,14 @@ outputs (Masked = same output, SDC = different output), so they must be correct.
 - `uint32_t` / `int32_t` (from `<stdint.h>`) = exactly 32 bits, unsigned / signed. Always use
   exact-width types here so C and Python agree bit for bit.
 
-## 3. W1: 8×8 matrix multiply (`sw/w1_matmul.c`)
+## 3. W1: 8×8 matrix multiply (`studies/seu/sw/w1_matmul.c`)
 
 `C[i][j] = Σk A[i][k] × B[k][j]`, i.e. 8 × 8 × 8 = **512 multiplies**, then a checksum of
 all 64 results, row by row.
 
 **Multiplication without a multiply instruction.** RV32I has no `mul`, so GCC calls
 `__mulsi3` from libgcc (that's why the Makefile links `-lgcc`). Look at it in
-`sw/build/w1_matmul.dis`:
+`build/seu/w1_matmul.dis`:
 
 ```
 __mulsi3:  a2 = a0; a0 = 0
@@ -69,14 +69,14 @@ passes. A **negative** `b` has its top bit set (two's complement), so it always 
 **The design decision this caused.** The first version used signed inputs −128…127. Half
 the multiplies took 32 passes and W1 needed **344,337 cycles**, outside the 10k–200k
 budget. With inputs 0…255 (like 8-bit pixel values) it takes **147,409 cycles**
-(checksum `0x36c7bde8`, same on Verilator and Icarus). Logged in docs/decisions.md.
+(checksum `0x36c7bde8`, same on Verilator and Icarus). Logged in studies/seu/docs/decisions.md.
 
 **Why this matters for the study:** W1's run time depends on the *data*. A bit flip in an
 operand register can make a multiply longer or shorter. Keep that in mind when you see
 the cycle counts of faulty runs. It's also why "Hang" is defined as > 2× golden cycles,
 not "any change in cycles".
 
-## 4. `sw/ref/workloads.py`: the Python reference
+## 4. `studies/seu/sw/ref/workloads.py`: the Python reference
 
 - Re-implements `xorshift32`, `mix` and the matrix multiply.
 - **`& M32`** (`0xFFFFFFFF`): Python integers never overflow, but C's 32-bit ones wrap
@@ -85,18 +85,18 @@ not "any change in cycles".
 - `WORKLOADS` maps a workload name (= `sw/<name>.c`) to its function. Adding a workload
   = add a C file + one Python function + one line here.
 
-## 5. `make check` (`tb/check_workloads.py`)
+## 5. `make check` (`platform/tests/check_golden.py`)
 
 For each workload: build it (`make sw PROG=…`), run the simulator, read the `OUT` and
 `DONE/TRAP/HANG` lines, compare with Python, print a PASS/FAIL table, and save the golden
-outputs + cycle counts to `results/golden_runs.json`. It exits with an error code on any
+outputs + cycle counts to `studies/seu/results/golden_runs.json`. It exits with an error code on any
 FAIL. Tested on purpose with a wrong reference value: it reported FAIL and exit code 1.
 
 ---
 
 ## 6. Do it yourself
 
-1. **Find the multiply.** In `sw/build/w1_matmul.dis`, search for `__mulsi3`. How many
+1. **Find the multiply.** In `build/seu/w1_matmul.dis`, search for `__mulsi3`. How many
    `jal … <__mulsi3>` instructions are there? Why only one, if there are 512 multiplies?
    *Check:* 1 call site, inside the innermost `k` loop.
 2. **Count the passes by hand.** For `b = 200`, `b = 1`, `b = 255` and `b = -1`, how many
@@ -123,10 +123,10 @@ FAIL. Tested on purpose with a wrong reference value: it reported FAIL and exit 
 
 ---
 
-## 8. W3: CRC-32 over 1 KB (practice task; reference solution now in `sw/w3_crc32.c`)
+## 8. W3: CRC-32 over 1 KB (practice task; reference solution now in `studies/seu/sw/w3_crc32.c`)
 
 > 2026-11-02: to protect Gate 1, Claude wrote W3 (decision of 2 Nov). Do this task on a
-> play branch **without looking at `sw/w3_crc32.c` first**, then compare. Result to
+> play branch **without looking at `studies/seu/sw/w3_crc32.c` first**, then compare. Result to
 > reproduce: outputs `cbf43926`, `0a6e4633`; 119,032 cycles.
 
 You know CRCs from telecoms: Ethernet's frame check sequence is exactly this CRC-32.
@@ -135,7 +135,7 @@ You know CRCs from telecoms: Ethernet's frame check sequence is exactly this CRC
 
 | item | value |
 |---|---|
-| files | `sw/w3_crc32.c` (C) and a function `w3_crc32()` in `sw/ref/workloads.py` (+ add `"w3_crc32": w3_crc32` to `WORKLOADS`) |
+| files | `studies/seu/sw/w3_crc32.c` (C) and a function `w3_crc32()` in `studies/seu/sw/ref/workloads.py` (+ add `"w3_crc32": w3_crc32` to `WORKLOADS`) |
 | CRC | CRC-32 as used by Ethernet / zip / Python `zlib.crc32`: reflected polynomial `0xEDB88320`, start value `0xFFFFFFFF`, final XOR `0xFFFFFFFF` (catalogue name CRC-32/ISO-HDLC) |
 | output 1 | CRC of the 9 ASCII bytes `"123456789"` → must be `cbf43926` (the standard "check value": a built-in self-test) |
 | output 2 | CRC of a 1024-byte buffer: `seed = 0x0BADF00D`; each `xorshift32(&seed)` call gives **4 bytes, lowest byte first** (`w`, `w>>8`, `w>>16`, `w>>24`), 256 calls in total |
@@ -147,14 +147,14 @@ You know CRCs from telecoms: Ethernet's frame check sequence is exactly this CRC
 git switch main && git pull
 git switch -c w3-crc32          # a feature branch (real code, not a throwaway play/ branch)
 # ... write the code, run `make check` until PASS ...
-git add sw/w3_crc32.c sw/ref/workloads.py && git commit -m "W3: CRC-32 over 1 KB"
+git add studies/seu/sw/w3_crc32.c studies/seu/sw/ref/workloads.py && git commit -m "W3: CRC-32 over 1 KB"
 ```
 Then tell me. I review the diff, and after review we merge into `main`.
 
 ### Suggested path (correct first, then fast)
 1. **Python first** (your strong side): `w3_crc32()` returns `[zlib.crc32(b"123456789"), zlib.crc32(buf)]`.
    Hint: `v.to_bytes(4, "little")`, and reuse `xorshift32` from the same file.
-   Run `~/.venv/bin/python sw/ref/workloads.py` and check output 1 is `cbf43926`.
+   Run `~/.venv/bin/python studies/seu/sw/ref/workloads.py` and check output 1 is `cbf43926`.
 2. **C, bit-by-bit version** (the textbook algorithm): for each byte, XOR it into the low
    8 bits of `crc`; then 8 times: if the lowest bit is 1, `crc = (crc >> 1) ^ 0xEDB88320`,
    else `crc = crc >> 1`. At the end return `~crc`.
@@ -187,7 +187,7 @@ Then tell me. I review the diff, and after review we merge into `main`.
 
 ---
 
-## 9. W2: quicksort of 64 signed integers (`sw/w2_qsort.c`)
+## 9. W2: quicksort of 64 signed integers (`studies/seu/sw/w2_qsort.c`)
 
 - **Algorithm:** recursive quicksort, Lomuto partition: take the last element as the
   pivot, move everything smaller to the left, put the pivot in between, then sort both
@@ -197,7 +197,7 @@ Then tell me. I review the diff, and after review we merge into `main`.
 - **Reference:** any correct sort gives the same final order, so Python's `sorted()` is a
   fully independent check of the C quicksort. Result: `0x9c86f267`, **33,800 cycles**
   (Verilator = Icarus).
-- **What GCC did** (`sw/build/w2_qsort.dis`): the function is named
+- **What GCC did** (`build/seu/w2_qsort.dis`): the function is named
   `quicksort.constprop.0` ("constant propagation": `v` is always the same array, so GCC
   specialised it). The first recursive call is a real call (`sw ra,28(sp)` saves the
   return address on the stack, `jal` jumps back into the function). The second call is
@@ -222,7 +222,7 @@ RISC-V Unprivileged ISA spec, RV32I "Conditional Branches" (`BLT` vs `BLTU`).
 
 ---
 
-## 10. W4: fixed-point attitude filter + attitude hold, 200 steps (`sw/w4_attitude.c`)
+## 10. W4: fixed-point attitude filter + attitude hold, 200 steps (`studies/seu/sw/w4_attitude.c`)
 
 **What it simulates, per step and per axis (roll, pitch, yaw):** a plant (true rate and
 angle, pushed by the actuator command plus a random disturbance), sensors (gyro = rate +
@@ -235,7 +235,7 @@ and a **PD controller** `u = −(1.5·angle + 0.25·rate)`, saturated at ±0.5.
 negative numbers and GCC's `>>` on `int32_t` (the `sra` instruction) both round toward
 minus infinity, so the C code and the Python mirror agree bit for bit.
 
-**No multiplies at all** (`grep __mulsi3 sw/build/w4_attitude.dis` finds nothing): dt =
+**No multiplies at all** (`grep __mulsi3 build/seu/w4_attitude.dis` finds nothing): dt =
 1/64, filter gain = 1/32, controller gains 1.5 = 1 + 1/2 and 0.25 = 1/4, all done with shifts
 and adds. That's standard practice on small flight-control CPUs, and here it's essential:
 one signed software multiply can cost ~800 cycles.
@@ -276,7 +276,7 @@ idea); PicoRV32 README, "Cycles per Instruction Performance" (shift cost).
 
 ---
 
-## 11. W5: Mode S / ADS-B CRC-24 check (`sw/w5_adsb_crc24.c`)
+## 11. W5: Mode S / ADS-B CRC-24 check (`studies/seu/sw/w5_adsb_crc24.c`)
 
 **The frame:** an ADS-B extended squitter (downlink format 17) is 112 bits = 14 bytes:
 5 bits DF (17) + 3 bits capability, 24-bit ICAO aircraft address, 56-bit message, then 24

@@ -2,7 +2,7 @@
 // execute (found by counting the ISS trace on 2026-11-02): AUIPC, BLTU, LB, LH, SLTI,
 // ORI, SLL, SLT, SLTU, SRA. Inline assembly forces the exact instruction.
 // `make lockstep` runs it, so these instructions are checked three ways: hand-computed
-// expected values (isa_test() in sw/ref/workloads.py), the golden ISS, and the RTL.
+// expected values (isa_test() in platform/tests/sw/tests_ref.py), the golden ISS, and the RTL.
 #include "common.h"
 
 static volatile int8_t  b8[4]  = {-1, 0x7F, -128, 5};

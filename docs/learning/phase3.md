@@ -10,7 +10,7 @@ Commands: `make lockstep` (all workloads + ISA test), `make lockstep W=w2_qsort`
 
 ---
 
-## 1. The golden model: `model/rv32i_iss.py`
+## 1. The golden model: `platform/model/rv32i_iss.py`
 
 An **ISS (instruction-set simulator)** is a program that executes machine code one
 instruction at a time, following the ISA rules, with no clocks or hardware detail. Ours
@@ -34,7 +34,7 @@ is about 240 lines of Python:
 It also checks itself: the ISS's outputs equal the Python references for W1–W5, and
 hello-world executes **44** instructions, the same number we counted by hand in Phase 1.
 
-## 2. The lockstep test: `tb/cocotb/test_lockstep.py`
+## 2. The lockstep test: `platform/tests/cocotb/test_lockstep.py`
 
 **cocotb** lets Python drive and watch a Verilog simulation: it starts the clock, applies
 reset, and reads any signal (Verilator is built with `--public-flat-rw`, so internal CPU
@@ -51,7 +51,7 @@ middle of the cycle, when everything is settled for the next rising edge):
 | stores | each SB/SH/SW | memory bus: `mem_valid & mem_ready & mem_wstrb != 0` |
 
 All three must be identical. Then outputs must equal the Python reference, the run must
-end with DONE, and the cycle count must equal `results/golden_runs.json`.
+end with DONE, and the cycle count must equal `studies/seu/results/golden_runs.json`.
 
 ## 3. What went wrong on the way (and what it teaches)
 
@@ -77,7 +77,7 @@ A deliberate bug was planted in the ISS (`srai` made logical instead of arithmet
 lockstep test failed on W4 at instruction 173 (a branch depending on the shifted value).
 Then the ISS was restored.
 
-## 5. Coverage: `sw/isa_test.c`
+## 5. Coverage: `platform/tests/sw/isa_test.c`
 
 Counting the ISS trace showed that W1–W5 execute 27 of the 37 RV32I instructions. Never
 executed: AUIPC, BLTU, LB, LH, SLTI, ORI, SLL, SLT, SLTU, SRA. `isa_test.c` runs each of
@@ -103,7 +103,7 @@ values. It passes three ways: hand values = ISS = RTL. All 37 instructions are n
 ## 7. Do it yourself
 
 1. **Read one decode.** In `rv32i_iss.py`, find how `imm_b` is built. Take the `bgeu`
-   at address `0x84` in `sw/build/w2_qsort.dis` (`0062f863`) and compute its offset by
+   at address `0x84` in `build/seu/w2_qsort.dis` (`0062f863`) and compute its offset by
    hand. *Check:* +16 (0x84 + 16 = 0x94, the target shown in the listing).
 2. **Watch the prefetch.** `make wave PROG=w2_qsort` and open `tb_soc.vcd` in Surfer.
    Find the `bgeu` at `0x84` on its last pass, and see the bus fetch `0x88` and then `0x94`.
@@ -118,7 +118,7 @@ values. It passes three ways: hand values = ISS = RTL. All 37 instructions are n
 
 - **RISC-V Unprivileged ISA spec**, chapter "RV32I Base Integer Instruction Set"
   (formats, immediates, every instruction): https://github.com/riscv/riscv-isa-manual/releases
-- **PicoRV32 source** `rtl/picorv32.v`: `launch_next_insn` (~line 1400), register write
+- **PicoRV32 source** `platform/rtl/picorv32/picorv32.v`: `launch_next_insn` (~line 1400), register write
   port (~lines 1303–1344), `mem_do_prefetch` (~line 1573); README "Verilog Module Parameters".
 - **cocotb docs** (triggers like `FallingEdge`, accessing signals): https://docs.cocotb.org/en/stable/
 - **pyelftools** (reading ELF segments): https://github.com/eliben/pyelftools

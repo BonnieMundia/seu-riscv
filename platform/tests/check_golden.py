@@ -1,33 +1,32 @@
-"""Build and run every workload on the RTL, and compare against the Python reference.
+"""Build and run every workload of a study on the RTL, and compare against its Python reference.
 
-Usage:  make check        (or: python tb/check_workloads.py [workload ...])
+Usage:  make golden STUDY=seu   (or: python platform/tests/check_golden.py --study seu [workload ...])
 
-For each workload in sw/ref/workloads.py:
-  1. `make sw PROG=<name>` builds the ELF + hex,
+For each workload in studies/<study>/sw/ref/workloads.py:
+  1. `make sw STUDY=<study> PROG=<name>` builds the ELF + hex into build/<study>/,
   2. the Verilator simulation runs it and prints OUT / DONE|TRAP|HANG lines,
-  3. the OUT values are compared with the Python reference.
-Writes results/golden_runs.json (outputs + cycle counts of the fault-free runs);
-the fault-injection "Hang" rule (> 2x golden cycles) will read the cycles from there.
+  3. the OUT values are compared with the Python reference, and the cycle count with
+     the 10k-200k budget.
+Writes studies/<study>/results/golden_runs.json (outputs + cycle counts of the
+fault-free runs); the fault-injection "Hang" rule (> 2x golden cycles) reads it.
 """
 
+import argparse
 import json
-import pathlib
 import re
 import subprocess
 import sys
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(ROOT / "sw" / "ref"))
-from workloads import WORKLOADS  # noqa: E402
+from programs import ROOT, build_dir, golden_path, load
 
 SIM = ROOT / "obj_dir" / "Vtb_soc"
 MAX_CYCLES = 1_000_000
 BUDGET = (10_000, 200_000)  # project scope: each workload runs 10k-200k cycles
 
 
-def run(name):
-    subprocess.run(["make", "-s", "sw", f"PROG={name}"], cwd=ROOT, check=True)
-    hexfile = ROOT / "sw" / "build" / f"{name}.hex"
+def run(study, name):
+    subprocess.run(["make", "-s", "sw", f"STUDY={study}", f"PROG={name}"], cwd=ROOT, check=True)
+    hexfile = build_dir(study) / f"{name}.hex"
     out = subprocess.run(
         [str(SIM), f"+hex={hexfile}", f"+max_cycles={MAX_CYCLES}"],
         cwd=ROOT, capture_output=True, text=True, check=True,
@@ -38,13 +37,21 @@ def run(name):
 
 
 def main():
-    names = sys.argv[1:] or list(WORKLOADS)
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--study", default="seu")
+    ap.add_argument("workloads", nargs="*")
+    args = ap.parse_args()
+    WORKLOADS, _ = load(args.study)
+    if not WORKLOADS:
+        sys.exit(f"study {args.study!r} has no workloads yet "
+                 f"(studies/{args.study}/sw/ref/workloads.py missing)")
+    names = args.workloads or list(WORKLOADS)
     subprocess.run(["make", "-s", str(SIM.relative_to(ROOT))], cwd=ROOT, check=True)
     golden, failures = {}, 0
     print(f"{'workload':<14} {'status':<6} {'cycles':>9}  result")
     for name in names:
         expected = WORKLOADS[name]()
-        outs, status, cycles = run(name)
+        outs, status, cycles = run(args.study, name)
         correct = status == "DONE" and outs == expected
         in_budget = BUDGET[0] <= cycles <= BUDGET[1]
         ok = correct and in_budget
@@ -60,7 +67,7 @@ def main():
         golden[name] = {"outputs": [f"{v:08x}" for v in outs], "status": status,
                         "cycles": cycles, "match_reference": correct,
                         "in_budget": in_budget}
-    results = ROOT / "results" / "golden_runs.json"
+    results = golden_path(args.study)
     results.write_text(json.dumps(golden, indent=2) + "\n")
     print(f"wrote {results.relative_to(ROOT)}")
     sys.exit(1 if failures else 0)

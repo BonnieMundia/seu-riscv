@@ -1,7 +1,6 @@
 # Simulation / build outputs
 obj_dir/
 build/
-sw/build/
 *.vcd
 *.fst
 *.o
