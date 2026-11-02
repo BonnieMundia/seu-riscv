@@ -273,3 +273,47 @@ value ever reaches 2³¹, so 32-bit wrap-around can't hide a mismatch.
 Sources: Mahony, Hamel & Pflimlin, "Nonlinear complementary filters on the special
 orthogonal group", IEEE Trans. Automatic Control 53(5), 2008 (the complementary-filter
 idea); PicoRV32 README, "Cycles per Instruction Performance" (shift cost).
+
+---
+
+## 11. W5: Mode S / ADS-B CRC-24 check (`sw/w5_adsb_crc24.c`)
+
+**The frame:** an ADS-B extended squitter (downlink format 17) is 112 bits = 14 bytes:
+5 bits DF (17) + 3 bits capability, 24-bit ICAO aircraft address, 56-bit message, then 24
+parity bits. First byte `0x8D` = DF17, CA5.
+
+**Mode S parity:** generator polynomial `0x1FFF409` (25 bits; usually written `0xFFF409`
+without the leading x²⁴ term), processed MSB first, start value 0, no final XOR. It's a
+different family from W3's Ethernet CRC: not reflected, and no start/end inversion.
+
+**Receiver check = syndrome:** CRC of the 88 data bits XOR the 24 received parity bits.
+0 = valid. Mathematically the syndrome equals the remainder of the *whole* 112-bit frame
+divided by the generator, which is exactly what the Python reference computes, by a
+different method (big-integer long division instead of a shift register). Real decoders
+(e.g. dump1090) also use the syndrome to **locate and fix a single flipped bit**, because
+every bit position gives a different syndrome.
+
+**The 32 frames:** 4 real frames from "The 1090 MHz Riddle" (all checked: remainder 0),
+14 synthetic DF17 frames with parity computed on the CPU (the transponder's job), and 14
+corrupted copies with one bit flipped (bad reception). Result: `OUT 00000012` = 18 valid
+frames, `OUT 32f0a6da` = checksum of all 32 syndromes; **150,997 cycles** (Verilator = Icarus).
+The bit-by-bit CRC (88 bits × 46 CRC runs ≈ 4,000 bit steps) fits the budget, so no table
+was needed.
+
+**Why it's a good fault target:** the code is a tight bit loop where the *decision*
+(`s == 0`) is what matters. A fault can make a corrupted frame look valid or a valid one
+look corrupted: an SDC in the first output that would matter in a real receiver.
+
+### Do it yourself
+1. Decode the header of `8D4840D6…`: DF, CA and the ICAO address. *Check:* DF 17, CA 5,
+   ICAO `4840D6`.
+2. In Python: `from workloads import mode_s_remainder` and flip each of the 112 bits of
+   a real frame in turn. Are all 112 syndromes non-zero and all different?
+   *Expect:* yes, which is why single-bit correction is possible.
+3. Why does `0x80 >> (pos & 7)` pick bit `pos` in MSB-first order? Work out `pos = 0`
+   and `pos = 9` by hand.
+
+Sources: J. Sun, *The 1090 Megahertz Riddle* (2nd ed.), chapter "Error control" (gives
+the generator `1111111111111010000001001` and sample frames):
+https://mode-s.org/1090mhz/content/ads-b/8-error-control.html ; ICAO Annex 10 Vol. IV
+(Mode S parity, the formal standard).

@@ -35,5 +35,15 @@
     "cycles": 192392,
     "match_reference": true,
     "in_budget": true
+  },
+  "w5_adsb_crc24": {
+    "outputs": [
+      "00000012",
+      "32f0a6da"
+    ],
+    "status": "DONE",
+    "cycles": 150997,
+    "match_reference": true,
+    "in_budget": true
   }
 }

@@ -108,12 +108,54 @@ def w4_attitude(trace=None):
     return [cs]
 
 
+MODE_S_GEN = 0x1FFF409  # Mode S generator polynomial, incl. the x^24 term
+
+
+def mode_s_remainder(frame):
+    """Remainder of the whole 112-bit frame divided by the Mode S generator, by big-integer
+    long division (a different method from the C shift register). 0 = valid frame."""
+    n = int.from_bytes(frame, "big")
+    for i in range(len(frame) * 8 - 1, 23, -1):
+        if n >> i & 1:
+            n ^= MODE_S_GEN << (i - 24)
+    return n
+
+
+def w5_adsb_crc24():
+    real = [bytes.fromhex(h) for h in (
+        "8D4840D6202CC371C32CE0576098", "8D406B902015A678D4D220AA4BDA",
+        "8D485020994409940838175B284F", "8D40621D58C382D690C8AC2863A7")]
+    seed = 0x1090ADB5
+    frames = list(real)
+    for _ in range(14):
+        data = bytearray([0x8D])
+        for _ in range(10):
+            v, seed = xorshift32(seed)
+            data.append(v & 0xFF)
+        parity = mode_s_remainder(bytes(data) + b"\0\0\0")   # = data * x^24 mod G
+        frames.append(bytes(data) + parity.to_bytes(3, "big"))
+    for i in range(14):
+        f = bytearray(frames[i % 18])
+        v, seed = xorshift32(seed)
+        pos = v & 127
+        if pos >= 112:
+            pos -= 112
+        f[pos >> 3] ^= 0x80 >> (pos & 7)
+        frames.append(bytes(f))
+    syndromes = [mode_s_remainder(f) for f in frames]
+    cs = 0
+    for s in syndromes:
+        cs = mix(cs, s)
+    return [sum(s == 0 for s in syndromes), cs]
+
+
 # Workload name (= sw/<name>.c) -> function returning the expected OUT values, in order.
 WORKLOADS = {
     "w1_matmul": w1_matmul,
     "w2_qsort": w2_qsort,
     "w3_crc32": w3_crc32,
     "w4_attitude": w4_attitude,
+    "w5_adsb_crc24": w5_adsb_crc24,
 }
 
 if __name__ == "__main__":
