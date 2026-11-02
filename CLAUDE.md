@@ -101,7 +101,8 @@ results/ · analysis/ · viz/ · docs/ (learning/ = walkthroughs + exercises) ·
 - `make check` — run all workloads, compare with Python reference (sw/ref/workloads.py),
   write results/golden_runs.json · `make wave` — run with VCD · `make clean`
 - Workload pattern: sw/common.h (report(), xorshift32(), mix()); add a workload = C file +
-  Python function in sw/ref/workloads.py. Boniface writes W3 and W5 himself (trainer rule 5).
+  Python function in sw/ref/workloads.py. W3/W5 written by Claude for G1 (Boniface reviews;
+  phase2.md §8 stays as a redo-it-yourself task on a play branch).
 
 ## Schedule (main project Mon 12 Oct 2026 – Fri 1 Jan 2027)
 - Week 1 (12–16 Oct): hello-world SoC running, repo pushed, papers 1–5 read.

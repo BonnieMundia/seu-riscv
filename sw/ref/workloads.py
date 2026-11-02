@@ -64,10 +64,22 @@ def w2_qsort():
     return [cs]
 
 
+def w3_crc32():
+    # zlib.crc32 is CRC-32/ISO-HDLC, the same CRC as the C code, implemented independently.
+    import zlib
+    seed = 0x0BADF00D
+    buf = bytearray()
+    for _ in range(1024 // 4):
+        v, seed = xorshift32(seed)
+        buf += v.to_bytes(4, "little")
+    return [zlib.crc32(b"123456789"), zlib.crc32(bytes(buf))]
+
+
 # Workload name (= sw/<name>.c) -> function returning the expected OUT values, in order.
 WORKLOADS = {
     "w1_matmul": w1_matmul,
     "w2_qsort": w2_qsort,
+    "w3_crc32": w3_crc32,
 }
 
 if __name__ == "__main__":

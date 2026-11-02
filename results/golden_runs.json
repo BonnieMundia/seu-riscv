@@ -16,5 +16,15 @@
     "cycles": 33800,
     "match_reference": true,
     "in_budget": true
+  },
+  "w3_crc32": {
+    "outputs": [
+      "cbf43926",
+      "0a6e4633"
+    ],
+    "status": "DONE",
+    "cycles": 119032,
+    "match_reference": true,
+    "in_budget": true
   }
 }

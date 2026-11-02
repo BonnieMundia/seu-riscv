@@ -123,7 +123,11 @@ FAIL. Tested on purpose with a wrong reference value: it reported FAIL and exit 
 
 ---
 
-## 8. W3: CRC-32 over 1 KB (**your task**: you write it, I review)
+## 8. W3: CRC-32 over 1 KB (practice task; reference solution now in `sw/w3_crc32.c`)
+
+> 2026-11-02: to protect Gate 1, Claude wrote W3 (decision of 2 Nov). Do this task on a
+> play branch **without looking at `sw/w3_crc32.c` first**, then compare. Result to
+> reproduce: outputs `cbf43926`, `0a6e4633`; 119,032 cycles.
 
 You know CRCs from telecoms: Ethernet's frame check sequence is exactly this CRC-32.
 
