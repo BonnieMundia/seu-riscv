@@ -180,3 +180,38 @@ Then tell me. I review the diff, and after review we merge into `main`.
 - Python `zlib.crc32`: https://docs.python.org/3/library/zlib.html#zlib.crc32
 - Ross Williams, "A Painless Guide to CRC Error Detection Algorithms" (classic tutorial,
   explains table-driven CRCs): http://www.ross.net/crc/download/crc_v3.txt
+
+---
+
+## 9. W2: quicksort of 64 signed integers (`sw/w2_qsort.c`)
+
+- **Algorithm:** recursive quicksort, Lomuto partition: take the last element as the
+  pivot, move everything smaller to the left, put the pivot in between, then sort both
+  sides. Inputs are full 32-bit values read as signed, so negatives are included.
+- **Signed compare:** `v[j] < pivot` on `int32_t` compiles to `blt` (signed). With
+  `uint32_t` it would be `bltu` and the order would differ: −1 would sort *after* 5.
+- **Reference:** any correct sort gives the same final order, so Python's `sorted()` is a
+  fully independent check of the C quicksort. Result: `0x9c86f267`, **33,800 cycles**
+  (Verilator = Icarus).
+- **What GCC did** (`sw/build/w2_qsort.dis`): the function is named
+  `quicksort.constprop.0` ("constant propagation": `v` is always the same array, so GCC
+  specialised it). The first recursive call is a real call (`sw ra,28(sp)` saves the
+  return address on the stack, `jal` jumps back into the function). The second call is
+  the last thing the function does, so GCC turned it into a jump back to the top
+  (**tail-call elimination**).
+- **Why it matters for faults:** return addresses on the stack sit in RAM (not injected),
+  but on the way there they pass through `ra`, `sp` and the PC (injected). A flipped bit
+  in `ra` just before `ret` sends the CPU somewhere random → expect more Crash/Hang
+  outcomes for W2 than for W1, especially in the PC unit (that's experiment E3).
+
+### Do it yourself
+1. In `w2_qsort.dis`, find `blt` inside `quicksort.constprop.0`. Change `int32_t` to
+   `uint32_t` for the array on a play branch: which instruction replaces it, and does
+   `make check` still PASS? *Expect:* `bltu`; FAIL (unsigned order ≠ signed `sorted()`).
+2. Count the `jal … <quicksort.constprop.0>` lines. Why only one, when the C code has two
+   recursive calls? *Check:* 1 (tail-call elimination).
+3. Predict: what happens to the cycle count if the input is already sorted? (Hint:
+   Lomuto with last-element pivot.) Try it on a play branch by sorting `a` first in C.
+
+Source: Cormen et al., *Introduction to Algorithms*, ch. 7 "Quicksort" (Lomuto partition);
+RISC-V Unprivileged ISA spec, RV32I "Conditional Branches" (`BLT` vs `BLTU`).
