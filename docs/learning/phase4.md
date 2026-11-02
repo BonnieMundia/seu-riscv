@@ -147,7 +147,40 @@ The harness only reports facts (status, outputs). Turning them into masked / SDC
 / hang / detected is a separate, small, pure-Python function, so another study (HDC) can
 add its own sub-outcomes without touching the C++. The spec is in the file's docstring;
 the 12 tests in `test_classify.py` describe it exactly. Write it, run `make fi-test` until
-23 passed, and commit it yourself (`[platform] Outcome classifier`). I will review it.
+29 passed, and commit it yourself (`[platform] Outcome classifier`). I will review it.
+
+## 4d. The campaign runner: `platform/fi/campaign.py`
+
+An **experiment file** (`studies/seu/experiments/<name>.yaml`) says which workloads, which
+units, how many runs per (workload, unit) "cell", and the random seed. `make smoke` runs
+`smoke.yaml`: W2 × 7 units × 10 = 70 runs. That is a plumbing check, never a result.
+
+What the runner does, and why:
+- **Sampling.** For each run: a flip-flop chosen uniformly among the unit's sites, and a
+  cycle chosen uniformly in [0, golden cycles). Uniform over "which bit × when" is the
+  standard statistical fault injection of Leveugle et al. (2009), the paper that gives our
+  sample sizes (1,068 runs = ±3 % at 95 %).
+- **Seeds.** Each cell gets its own generator, seeded from sha256(seed/workload/unit).
+  So the same experiment file always gives the same runs (reproducible), and adding W5
+  later does not change the W1 samples. (Python's `hash()` is randomised per run, so
+  it cannot be used.)
+- **Parallel.** `multiprocessing.Pool` with 8 workers (SEU's share in
+  `../seu-riscv-coord/cpu_budget.json`). Each worker starts the harness for one run.
+- **Results.** One CSV row per run in `studies/seu/results/raw/<name>.csv` (git-ignored:
+  raw data can be big) with run_id, workload, unit, signal, bit, cycle, outcome, status,
+  cycles_run, bad_addr, detected, seed. Tool versions and the git commit go once into
+  `<name>.meta.json` next to it.
+- **Resume.** Rows are written as soon as each run finishes. Run the same command again
+  after a crash or Ctrl-C and only the missing runs are done (useful: the MacBook Air is
+  fanless and slows down on long runs).
+- **Guards.** More than 1,000 runs stops with "ask Boniface, then add --confirm". A lock
+  file in `../seu-riscv-coord/locks/` stops two campaigns at once (both checked).
+
+Tests: `test_campaign.py` (6 tests: plan size, unique ids, same seed = same plan, other
+seed = other plan, adding a workload leaves other cells unchanged, sites stay in their unit).
+The full chain (plan → 70 injections → classify → CSV → resume) was checked once with a
+private reference classifier; that output was deleted, so your first `make smoke` is the
+real one.
 
 ---
 
@@ -167,7 +200,14 @@ the 12 tests in `test_classify.py` describe it exactly. Write it, run `make fi-t
    `./obj_dir_fi/Vinject +hex=build/seu/w2_qsort.hex +max_cycles=67600 +sig=cpu.reg_next_pc +bits=2 +cycle=10000`.
    *Expect:* `"outputs":["d5d609f1"]` (golden is `9c86f267`). Now try `+bits=3`: predict
    first whether the answer will be right or wrong, then run it.
-6. **Write `classify()`** (§4c) and get `make fi-test` to `23 passed`.
+6. **Write `classify()`** (§4c) and get `make fi-test` to `29 passed`.
+7. **Your first campaign.** `make smoke`. *Expect:* `70/70 runs` in about a second, and a
+   CSV in `studies/seu/results/raw/`. Count outcomes per unit with pandas
+   (`pd.read_csv(...).groupby(["unit","outcome"]).size()`). Then run `make smoke` again:
+   *expect* `70 already done, 0 to run`.
+8. **Reproducibility.** Delete the CSV, run `make smoke` again, and compare the
+   outcome counts with step 7. *Expect:* identical. Explain why (two reasons: seeds, and
+   the simulator is deterministic).
 
 ## 6. Sources
 
@@ -181,6 +221,11 @@ the 12 tests in `test_classify.py` describe it exactly. Write it, run `make fi-t
 - **IEEE 1800 (SystemVerilog) standard**, the VPI chapters: `vpi_handle_by_name`,
   `vpi_get_value`, `vpi_put_value`, `s_vpi_vecval`. The installed header
   `$(verilator --getenv VERILATOR_ROOT)/include/vltstd/vpi_user.h` has the same definitions.
+- **Leveugle, Calvez, Maistri, Vanhauwaert (2009)**, "Statistical fault injection:
+  quantified error and confidence", DATE 2009: the sampling method and the sample-size
+  formula behind 1,068 / 2,401 / 9,604.
+- **Python docs**: `multiprocessing.Pool.imap_unordered`, `random.Random` (seeded
+  generator), `hashlib.sha256`.
 - **PicoRV32 source** `platform/rtl/picorv32/picorv32.v`: `cpuregs` declaration (~203),
   write port (~1337), read with x0 check (~1352), `mem_la_addr` (382), `cpu_state`
   encodings (~1172).

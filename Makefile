@@ -10,7 +10,9 @@
 #   make ffs              Yosys: list the SoC's flip-flops -> studies/$(STUDY)/targets/ff_list_$(VARIANT).json
 #   make targets          check the target descriptor studies/$(STUDY)/targets/soc_$(VARIANT).yaml
 #   make fi               build the Verilator fault-injection harness (obj_dir_fi/Vinject)
-#   make fi-test          injector + classifier tests (pytest)
+#   make fi-test          injector + classifier + campaign-planner tests (pytest)
+#   make smoke            70-run smoke campaign (studies/$(STUDY)/experiments/smoke.yaml)
+#   make campaign EXP=x   run studies/$(STUDY)/experiments/x.yaml (> 1,000 runs: add CONFIRM=1)
 #   make clean            remove build outputs
 #   (check = golden, kept as an alias)
 # Choose the study with STUDY=seu|hdc (default seu), the program with PROG=<name> (default hello).
@@ -108,7 +110,15 @@ fi-test: $(FIBIN)
 	  $(MAKE) -s sw STUDY=$(STUDY) PROG=$$w >/dev/null || exit 1; done
 	$(PYTHON) -m pytest -q platform/fi
 
-smoke campaign figures synth:
+# Campaigns: results go to studies/$(STUDY)/results/raw/ (git-ignored); re-running resumes.
+smoke: $(FIBIN)
+	$(PYTHON) platform/fi/campaign.py studies/$(STUDY)/experiments/smoke.yaml
+
+campaign: $(FIBIN)
+	@test -n "$(EXP)" || { echo "usage: make campaign EXP=<name> [CONFIRM=1]"; exit 1; }
+	$(PYTHON) platform/fi/campaign.py studies/$(STUDY)/experiments/$(EXP).yaml $(if $(CONFIRM),--confirm)
+
+figures synth:
 	@echo "make $@: not implemented yet (see docs/platform.md)"; exit 1
 
 clean:

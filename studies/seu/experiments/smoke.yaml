@@ -1,0 +1,10 @@
+# Smoke campaign: proves the whole chain (sampling -> injector -> classifier -> CSV)
+# works before any real experiment. 7 units x 10 runs = 70 runs on W2 (shortest workload).
+# Not a result: far too few runs for any rate. Run: make smoke
+name: smoke
+study: seu
+variant: h0
+workloads: [w2_qsort]
+units: all
+runs_per_cell: 10
+seed: 1
