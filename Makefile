@@ -11,6 +11,8 @@
 #   make targets          check the target descriptor studies/$(STUDY)/targets/soc_$(VARIANT).yaml
 #   make fi               build the Verilator fault-injection harness (obj_dir_fi/Vinject)
 #   make fi-test          injector + classifier + campaign-planner tests (pytest)
+#   make stats-test       tests of the statistics code (pytest)
+#   make rates EXP=x      failure rates + Wilson intervals + chi-square for campaign x
 #   make smoke            70-run smoke campaign (studies/$(STUDY)/experiments/smoke.yaml)
 #   make campaign EXP=x   run studies/$(STUDY)/experiments/x.yaml (> 1,000 runs: add CONFIRM=1)
 #   make clean            remove build outputs
@@ -42,7 +44,7 @@ PYTHON  ?= $(HOME)/.venv/bin/python
 VARIANT ?= h0
 TARGETS := studies/$(STUDY)/targets
 
-.PHONY: all sw sim wave golden check lockstep gate1 ffs targets fi fi-test smoke campaign figures synth clean
+.PHONY: all sw sim wave golden check lockstep gate1 ffs targets fi fi-test stats-test rates smoke campaign figures synth clean
 all: sim
 
 sw: $(HEX)
@@ -117,6 +119,13 @@ smoke: $(FIBIN)
 campaign: $(FIBIN)
 	@test -n "$(EXP)" || { echo "usage: make campaign EXP=<name> [CONFIRM=1]"; exit 1; }
 	$(PYTHON) platform/fi/campaign.py studies/$(STUDY)/experiments/$(EXP).yaml $(if $(CONFIRM),--confirm)
+
+stats-test:
+	$(PYTHON) -m pytest -q platform/stats
+
+rates:
+	@test -n "$(EXP)" || { echo "usage: make rates EXP=<name>"; exit 1; }
+	$(PYTHON) platform/stats/rates.py studies/$(STUDY)/results/raw/$(EXP).csv
 
 figures synth:
 	@echo "make $@: not implemented yet (see docs/platform.md)"; exit 1
