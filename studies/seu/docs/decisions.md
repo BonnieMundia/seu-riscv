@@ -50,3 +50,4 @@ One line per decision: `YYYY-MM-DD — decision — reason`.
 - 2026-11-06 — Statistics (platform/stats/rates.py): failure = sdc + crash + hang; detected counted separately; not_injected left out and reported. Rates are per flip in the unit. 95% Wilson intervals (matches scipy binomtest on 7 cases); chi-square of failed/not failed across workloads, per unit, with Bonferroni p < 0.05/7 and a warning if min expected < 5.
 - 2026-11-06 — E1 plan committed (studies/seu/experiments/e1.yaml: 37,380 runs, seed 20261106). Not run: waits for classify(), make smoke, Boniface's approval of hypotheses.md and of the campaign.
 - 2026-11-06 — classify() written by Claude at Boniface's request (planned as an exercise; Boniface reviews it instead), to the spec already in classify.py. make fi-test: 29 passed.
+- 2026-11-06 — hypotheses.md approved and E1 (37,380 runs) approved by Boniface before it ran.

@@ -1,6 +1,6 @@
 # Hypotheses for E1 (baseline campaign)
 
-Status: **DRAFT, needs Boniface's review and approval before E1 runs.**
+Status: **APPROVED by Boniface, 6 Nov 2026, before E1 ran.**
 Written 6 Nov 2026, before any E1 run.
 
 **Honest note on what was already seen.** These predictions are not fully blind. Before
