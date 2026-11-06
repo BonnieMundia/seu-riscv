@@ -1,0 +1,11 @@
+# E1: baseline campaign (RQ1). 5 workloads x 7 units x 1,068 = 37,380 runs.
+# 1,068 = +/- 3% at 95% confidence (Leveugle 2009, p = 0.5). Needs Boniface's approval:
+#   make campaign EXP=e1 CONFIRM=1
+# Before running: hypotheses.md approved, make smoke done. Do not change the seed afterwards.
+name: e1
+study: seu
+variant: h0
+workloads: [w1_matmul, w2_qsort, w3_crc32, w4_attitude, w5_adsb_crc24]
+units: all
+runs_per_cell: 1068
+seed: 20261106
