@@ -1,8 +1,7 @@
 """Outcome classifier: compare one faulty run with the golden (fault-free) run.
 
-EXERCISE FOR BONIFACE (trainer rule 5) - write classify() below, then run
-    make fi-test
-until every test in platform/fi/test_classify.py passes (make fi-test: 29 passed). Spec:
+Written by Claude at Boniface's request (6 Nov 2026), for Boniface to review. Tests:
+platform/fi/test_classify.py (make fi-test). Spec:
 
 Inputs
   run     dict from injector.run(): keys status ("done" | "trap" | "hang"), cycles (int),
@@ -22,12 +21,21 @@ Return exactly one of these strings, checking the rules IN THIS ORDER:
                     order, same count) - even if it took a different number of cycles
   6. "sdc"          otherwise (finished, but wrong or missing or extra outputs)
 Any other status: raise ValueError.
-
-Hint: rules 1-4 are one `if` each; rule 5 is a single list comparison.
 """
 
 OUTCOMES = ("not_injected", "detected", "crash", "hang", "masked", "sdc")
 
 
 def classify(run, golden, detected=False):
-    raise NotImplementedError("Boniface: write me (see the docstring above)")
+    if not run["injected"]:
+        return "not_injected"
+    if detected:
+        return "detected"
+    status = run["status"]
+    if status == "trap":
+        return "crash"
+    if status == "hang":
+        return "hang"
+    if status != "done":
+        raise ValueError(f"unknown status: {status}")
+    return "masked" if run["outputs"] == golden["outputs"] else "sdc"

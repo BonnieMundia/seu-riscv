@@ -141,13 +141,24 @@ error. Before that, all 123 signal names of the descriptor were looked up throug
 | `cpuregs[31]` bit 0 | right answer (W2 never uses x31) |
 | `cpu_state[7]` | hang (two states on at once, the state machine is stuck) |
 
-## 4c. Your turn: the outcome classifier (`platform/fi/classify.py`)
+## 4c. The outcome classifier (`platform/fi/classify.py`)
 
 The harness only reports facts (status, outputs). Turning them into masked / SDC / crash
 / hang / detected is a separate, small, pure-Python function, so another study (HDC) can
-add its own sub-outcomes without touching the C++. The spec is in the file's docstring;
-the 12 tests in `test_classify.py` describe it exactly. Write it, run `make fi-test` until
-29 passed, and commit it yourself (`[platform] Outcome classifier`). I will review it.
+add its own sub-outcomes without touching the C++. The spec is in the file's docstring; the
+12 tests in `test_classify.py` describe it exactly.
+
+Planned as your exercise, then written by Claude at your request (6 Nov) so the work
+could move on. You review it. Things to be able to explain:
+- **The order of the checks matters.** `not_injected` comes first: if the flip never
+  happened, nothing else about the run says anything about a fault.
+- `detected` comes before `crash`: a protection flag that fired counts as caught, even if
+  the core then trapped.
+- `run["outputs"] == golden["outputs"]` compares two Python lists: same values, same order,
+  same length. One line covers wrong, missing, extra and reordered outputs.
+- Cycles are not compared: a slower run with the right answer is still `masked`.
+- `raise ValueError` on an unknown status: an unexpected input must stop the campaign, not
+  be quietly counted as an SDC.
 
 ## 4d. The campaign runner: `platform/fi/campaign.py`
 
@@ -179,8 +190,7 @@ What the runner does, and why:
 Tests: `test_campaign.py` (6 tests: plan size, unique ids, same seed = same plan, other
 seed = other plan, adding a workload leaves other cells unchanged, sites stay in their unit).
 The full chain (plan → 70 injections → classify → CSV → resume) was checked once with a
-private reference classifier; that output was deleted, so your first `make smoke` is the
-real one.
+private reference classifier; that output was deleted.
 
 ---
 
@@ -200,7 +210,8 @@ real one.
    `./obj_dir_fi/Vinject +hex=build/seu/w2_qsort.hex +max_cycles=67600 +sig=cpu.reg_next_pc +bits=2 +cycle=10000`.
    *Expect:* `"outputs":["d5d609f1"]` (golden is `9c86f267`). Now try `+bits=3`: predict
    first whether the answer will be right or wrong, then run it.
-6. **Write `classify()`** (§4c) and get `make fi-test` to `29 passed`.
+6. **Review `classify()`** (§4c). Swap the `detected` and `not_injected` checks and run
+   `make fi-test`. *Expect:* `test_not_injected_wins` fails. Then `git restore` the file.
 7. **Your first campaign.** `make smoke`. *Expect:* `70/70 runs` in about a second, and a
    CSV in `studies/seu/results/raw/`. Count outcomes per unit with pandas
    (`pd.read_csv(...).groupby(["unit","outcome"]).size()`). Then run `make smoke` again:
