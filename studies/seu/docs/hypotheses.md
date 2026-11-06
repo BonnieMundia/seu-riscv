@@ -5,8 +5,9 @@ Written 6 Nov 2026, before any E1 run.
 
 **Honest note on what was already seen.** These predictions are not fully blind. Before
 writing them we had seen about a dozen hand-picked flips on W2 (docs/learning/phase4.md §4b)
-and one 70-run plumbing check whose output was deleted. Neither has any statistical
-weight, but both can bias a prediction, and the paper must say so.
+and the 70-run smoke campaign on W2 (10 runs per unit, same counts in the plumbing check
+and in `make smoke`). Neither has real statistical weight, but both can bias a prediction,
+and the paper must say so.
 
 Rules: a hypothesis is judged by the 95% Wilson intervals and the tests named below. A
 contradicted hypothesis stays in this file, is marked contradicted, and is reported plainly.
