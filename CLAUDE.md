@@ -98,7 +98,8 @@ dump golden vs faulty → JSON) · viz/ is a Swift package, one library target p
 ## Schedule
 - G1 Fri 6 Nov: RTL matches golden on W1–W5 — **met 2 Nov, signed off by Boniface**.
 - Platform migration: done 2 Nov (brought forward from 9 Nov).
-- G2 Fri 27 Nov: injector in platform/fi works; E1 done.
+- G2 Fri 27 Nov: injector in platform/fi works; E1 done. E1 run 6 Nov (37,380 runs, hypotheses checked);
+  **awaiting Boniface's sign-off**.
 - G3 Fri 18 Dec: H1–H5, E2, E3, LibreLane numbers. G4 Fri 1 Jan 2027: figures, paper
   draft, README, demo (4–8 Jan buffer). HDC timeline: studies/hdc/docs/PLAN.md.
 - If Boniface reports < ~12 h/week: drop E4 and H5 full synthesis first, then HDC RQ4.

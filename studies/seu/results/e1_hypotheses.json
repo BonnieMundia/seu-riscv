@@ -1,0 +1,240 @@
+{
+ "hypotheses": {
+  "H1": {
+   "supported": true,
+   "failures": 0,
+   "runs": 5340,
+   "ci95": [
+    0.0,
+    0.0007188571836002551
+   ]
+  },
+  "H2": {
+   "supported": true,
+   "not_separated": []
+  },
+  "H3": {
+   "supported": true,
+   "units": {
+    "control": {
+     "largest": "hang",
+     "sdc": 778,
+     "crash": 407,
+     "hang": 2244
+    },
+    "regfile": {
+     "largest": "sdc",
+     "sdc": 922,
+     "crash": 127,
+     "hang": 550
+    },
+    "alu": {
+     "largest": "sdc",
+     "sdc": 540,
+     "crash": 46,
+     "hang": 70
+    }
+   }
+  },
+  "H4": {
+   "supported": true,
+   "not_separated": [],
+   "pc": [
+    0.4542486787735806,
+    0.48100389137352156
+   ]
+  },
+  "H5": {
+   "low": {
+    "sdc": {
+     "k": 312,
+     "n": 1391,
+     "share": 0.22429906542056074,
+     "ci95": [
+      0.2031551539216729,
+      0.24696156353775747
+     ]
+    },
+    "crash": {
+     "k": 170,
+     "n": 1391,
+     "share": 0.12221423436376708,
+     "ci95": [
+      0.10603460072021521,
+      0.1404747474543107
+     ]
+    }
+   },
+   "high": {
+    "sdc": {
+     "k": 0,
+     "n": 2738,
+     "share": 0.0,
+     "ci95": [
+      0.0,
+      0.0014010506728373675
+     ]
+    },
+    "crash": {
+     "k": 1309,
+     "n": 2738,
+     "share": 0.4780861943024105,
+     "ci95": [
+      0.4594195491030942,
+      0.4968142442061609
+     ]
+    }
+   },
+   "sdc_supported": true,
+   "crash_supported": true,
+   "supported": true
+  },
+  "H6": {
+   "supported": true,
+   "alpha": 0.0071428571428571435,
+   "chi2": 356.985004160078,
+   "dof": 4,
+   "p": 5.441737609746321e-76,
+   "min_expected": 319.8
+  },
+  "H7": {
+   "supported": true,
+   "control": [
+    0.6291795575919888,
+    0.6548857560400888
+   ],
+   "regfile": [
+    0.28730153769337796,
+    0.3118632173791449
+   ]
+  }
+ },
+ "exploratory": {
+  "share_of_failures_per_chip": {
+   "regfile": {
+    "bits": 992,
+    "rate": 0.29943820224719103,
+    "share": 0.7675443881039447
+   },
+   "pc": {
+    "bits": 62,
+    "rate": 0.46760299625468166,
+    "share": 0.0749123802804702
+   },
+   "decoder": {
+    "bits": 125,
+    "rate": 0.1352059925093633,
+    "share": 0.04367074244133242
+   },
+   "alu": {
+    "bits": 133,
+    "rate": 0.12284644194756554,
+    "share": 0.04221811564012598
+   },
+   "memif": {
+    "bits": 107,
+    "rate": 0.13913857677902622,
+    "share": 0.03846944814214258
+   },
+   "control": {
+    "bits": 20,
+    "rate": 0.6421348314606742,
+    "share": 0.033184925391984234
+   },
+   "counters": {
+    "bits": 128,
+    "rate": 0.0,
+    "share": 0.0
+   }
+  },
+  "workload_tests": {
+   "alu": {
+    "chi2": 13.006316260856886,
+    "dof": 4,
+    "p": 0.011244972777133828,
+    "min_expected": 131.2
+   },
+   "control": {
+    "chi2": 49.264959096230186,
+    "dof": 4,
+    "p": 5.140917993606879e-10,
+    "min_expected": 382.2
+   },
+   "counters": null,
+   "decoder": {
+    "chi2": 8.930440801920462,
+    "dof": 4,
+    "p": 0.06286184163716324,
+    "min_expected": 144.4
+   },
+   "memif": {
+    "chi2": 15.596759663318373,
+    "dof": 4,
+    "p": 0.0036108494227161643,
+    "min_expected": 148.6
+   },
+   "pc": {
+    "chi2": 2.862955772040765,
+    "dof": 4,
+    "p": 0.5810150435287456,
+    "min_expected": 499.4
+   },
+   "regfile": {
+    "chi2": 356.985004160078,
+    "dof": 4,
+    "p": 5.441737609746321e-76,
+    "min_expected": 319.8
+   }
+  },
+  "bad_addr_by_outcome": {
+   "crash": 1731,
+   "sdc": 475,
+   "hang": 390,
+   "masked": 129
+  },
+  "outcomes_pooled": {
+   "alu": {
+    "masked": 4684,
+    "sdc": 540,
+    "crash": 46,
+    "hang": 70
+   },
+   "control": {
+    "masked": 1911,
+    "sdc": 778,
+    "crash": 407,
+    "hang": 2244
+   },
+   "counters": {
+    "masked": 5340,
+    "sdc": 0,
+    "crash": 0,
+    "hang": 0
+   },
+   "decoder": {
+    "masked": 4618,
+    "sdc": 433,
+    "crash": 212,
+    "hang": 77
+   },
+   "memif": {
+    "masked": 4597,
+    "sdc": 248,
+    "crash": 397,
+    "hang": 98
+   },
+   "pc": {
+    "masked": 2843,
+    "sdc": 312,
+    "crash": 2119,
+    "hang": 66
+   },
+   "regfile": {
+    "masked": 3741,
+    "sdc": 922,
+    "crash": 127,
+    "hang": 550
+   }
+  }
+ }
+}

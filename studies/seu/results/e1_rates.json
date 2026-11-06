@@ -1,0 +1,659 @@
+{
+ "runs": 37380,
+ "not_injected": 0,
+ "units": {
+  "alu": {
+   "all_workloads": {
+    "runs": 5340,
+    "masked": 4684,
+    "sdc": 540,
+    "crash": 46,
+    "hang": 70,
+    "detected": 0,
+    "failures": 656,
+    "failure_rate": 0.12284644194756554,
+    "ci95": [
+     0.11431221647717031,
+     0.13192290650701358
+    ]
+   },
+   "workloads": {
+    "w1_matmul": {
+     "runs": 1068,
+     "masked": 961,
+     "sdc": 95,
+     "crash": 9,
+     "hang": 3,
+     "detected": 0,
+     "failures": 107,
+     "failure_rate": 0.10018726591760299,
+     "ci95": [
+      0.08358831786254756,
+      0.11965205600802159
+     ]
+    },
+    "w2_qsort": {
+     "runs": 1068,
+     "masked": 936,
+     "sdc": 89,
+     "crash": 13,
+     "hang": 30,
+     "detected": 0,
+     "failures": 132,
+     "failure_rate": 0.12359550561797752,
+     "ci95": [
+      0.1051952179901103,
+      0.14469384593487514
+     ]
+    },
+    "w3_crc32": {
+     "runs": 1068,
+     "masked": 911,
+     "sdc": 143,
+     "crash": 8,
+     "hang": 6,
+     "detected": 0,
+     "failures": 157,
+     "failure_rate": 0.14700374531835206,
+     "ci95": [
+      0.1270319062570989,
+      0.1695058477223029
+     ]
+    },
+    "w4_attitude": {
+     "runs": 1068,
+     "masked": 927,
+     "sdc": 131,
+     "crash": 4,
+     "hang": 6,
+     "detected": 0,
+     "failures": 141,
+     "failure_rate": 0.13202247191011235,
+     "ci95": [
+      0.11303275819263295,
+      0.15364983415194236
+     ]
+    },
+    "w5_adsb_crc24": {
+     "runs": 1068,
+     "masked": 949,
+     "sdc": 82,
+     "crash": 12,
+     "hang": 25,
+     "detected": 0,
+     "failures": 119,
+     "failure_rate": 0.11142322097378277,
+     "ci95": [
+      0.09392718480472492,
+      0.13170456029196406
+     ]
+    }
+   },
+   "workload_test": {
+    "chi2": 13.006316260856886,
+    "dof": 4,
+    "p": 0.011244972777133828,
+    "min_expected": 131.2
+   }
+  },
+  "control": {
+   "all_workloads": {
+    "runs": 5340,
+    "masked": 1911,
+    "sdc": 778,
+    "crash": 407,
+    "hang": 2244,
+    "detected": 0,
+    "failures": 3429,
+    "failure_rate": 0.6421348314606742,
+    "ci95": [
+     0.6291795575919888,
+     0.6548857560400888
+    ]
+   },
+   "workloads": {
+    "w1_matmul": {
+     "runs": 1068,
+     "masked": 440,
+     "sdc": 138,
+     "crash": 78,
+     "hang": 412,
+     "detected": 0,
+     "failures": 628,
+     "failure_rate": 0.5880149812734082,
+     "ci95": [
+      0.5582320837457759,
+      0.6171669908588295
+     ]
+    },
+    "w2_qsort": {
+     "runs": 1068,
+     "masked": 441,
+     "sdc": 101,
+     "crash": 77,
+     "hang": 449,
+     "detected": 0,
+     "failures": 627,
+     "failure_rate": 0.5870786516853933,
+     "ci95": [
+      0.5572891774202492,
+      0.6162439495821795
+     ]
+    },
+    "w3_crc32": {
+     "runs": 1068,
+     "masked": 324,
+     "sdc": 182,
+     "crash": 93,
+     "hang": 469,
+     "detected": 0,
+     "failures": 744,
+     "failure_rate": 0.6966292134831461,
+     "ci95": [
+      0.668394076387142,
+      0.7234549200699553
+     ]
+    },
+    "w4_attitude": {
+     "runs": 1068,
+     "masked": 343,
+     "sdc": 198,
+     "crash": 87,
+     "hang": 440,
+     "detected": 0,
+     "failures": 725,
+     "failure_rate": 0.6788389513108615,
+     "ci95": [
+      0.6502376998918921,
+      0.7061582921238488
+     ]
+    },
+    "w5_adsb_crc24": {
+     "runs": 1068,
+     "masked": 363,
+     "sdc": 159,
+     "crash": 72,
+     "hang": 474,
+     "detected": 0,
+     "failures": 705,
+     "failure_rate": 0.6601123595505618,
+     "ci95": [
+      0.6311757698621521,
+      0.6879012701100555
+     ]
+    }
+   },
+   "workload_test": {
+    "chi2": 49.264959096230186,
+    "dof": 4,
+    "p": 5.140917993606879e-10,
+    "min_expected": 382.2
+   }
+  },
+  "counters": {
+   "all_workloads": {
+    "runs": 5340,
+    "masked": 5340,
+    "sdc": 0,
+    "crash": 0,
+    "hang": 0,
+    "detected": 0,
+    "failures": 0,
+    "failure_rate": 0.0,
+    "ci95": [
+     0.0,
+     0.0007188571836002551
+    ]
+   },
+   "workloads": {
+    "w1_matmul": {
+     "runs": 1068,
+     "masked": 1068,
+     "sdc": 0,
+     "crash": 0,
+     "hang": 0,
+     "detected": 0,
+     "failures": 0,
+     "failure_rate": 0.0,
+     "ci95": [
+      0.0,
+      0.0035839804376672758
+     ]
+    },
+    "w2_qsort": {
+     "runs": 1068,
+     "masked": 1068,
+     "sdc": 0,
+     "crash": 0,
+     "hang": 0,
+     "detected": 0,
+     "failures": 0,
+     "failure_rate": 0.0,
+     "ci95": [
+      0.0,
+      0.0035839804376672758
+     ]
+    },
+    "w3_crc32": {
+     "runs": 1068,
+     "masked": 1068,
+     "sdc": 0,
+     "crash": 0,
+     "hang": 0,
+     "detected": 0,
+     "failures": 0,
+     "failure_rate": 0.0,
+     "ci95": [
+      0.0,
+      0.0035839804376672758
+     ]
+    },
+    "w4_attitude": {
+     "runs": 1068,
+     "masked": 1068,
+     "sdc": 0,
+     "crash": 0,
+     "hang": 0,
+     "detected": 0,
+     "failures": 0,
+     "failure_rate": 0.0,
+     "ci95": [
+      0.0,
+      0.0035839804376672758
+     ]
+    },
+    "w5_adsb_crc24": {
+     "runs": 1068,
+     "masked": 1068,
+     "sdc": 0,
+     "crash": 0,
+     "hang": 0,
+     "detected": 0,
+     "failures": 0,
+     "failure_rate": 0.0,
+     "ci95": [
+      0.0,
+      0.0035839804376672758
+     ]
+    }
+   },
+   "workload_test": null
+  },
+  "decoder": {
+   "all_workloads": {
+    "runs": 5340,
+    "masked": 4618,
+    "sdc": 433,
+    "crash": 212,
+    "hang": 77,
+    "detected": 0,
+    "failures": 722,
+    "failure_rate": 0.1352059925093633,
+    "ci95": [
+     0.12629645637118317,
+     0.14463999823318133
+    ]
+   },
+   "workloads": {
+    "w1_matmul": {
+     "runs": 1068,
+     "masked": 928,
+     "sdc": 72,
+     "crash": 57,
+     "hang": 11,
+     "detected": 0,
+     "failures": 140,
+     "failure_rate": 0.13108614232209737,
+     "ci95": [
+      0.1121605391088248,
+      0.1526561056335739
+     ]
+    },
+    "w2_qsort": {
+     "runs": 1068,
+     "masked": 926,
+     "sdc": 79,
+     "crash": 43,
+     "hang": 20,
+     "detected": 0,
+     "failures": 142,
+     "failure_rate": 0.13295880149812733,
+     "ci95": [
+      0.11390531219494532,
+      0.15464322775180667
+     ]
+    },
+    "w3_crc32": {
+     "runs": 1068,
+     "masked": 900,
+     "sdc": 115,
+     "crash": 37,
+     "hang": 16,
+     "detected": 0,
+     "failures": 168,
+     "failure_rate": 0.15730337078651685,
+     "ci95": [
+      0.13670047670960397,
+      0.18036270089374098
+     ]
+    },
+    "w4_attitude": {
+     "runs": 1068,
+     "masked": 918,
+     "sdc": 116,
+     "crash": 26,
+     "hang": 8,
+     "detected": 0,
+     "failures": 150,
+     "failure_rate": 0.1404494382022472,
+     "ci95": [
+      0.12089745511653643,
+      0.1625786656476288
+     ]
+    },
+    "w5_adsb_crc24": {
+     "runs": 1068,
+     "masked": 946,
+     "sdc": 51,
+     "crash": 49,
+     "hang": 22,
+     "detected": 0,
+     "failures": 122,
+     "failure_rate": 0.11423220973782772,
+     "ci95": [
+      0.0965215964319936,
+      0.13470799147122536
+     ]
+    }
+   },
+   "workload_test": {
+    "chi2": 8.930440801920462,
+    "dof": 4,
+    "p": 0.06286184163716324,
+    "min_expected": 144.4
+   }
+  },
+  "memif": {
+   "all_workloads": {
+    "runs": 5340,
+    "masked": 4597,
+    "sdc": 248,
+    "crash": 397,
+    "hang": 98,
+    "detected": 0,
+    "failures": 743,
+    "failure_rate": 0.13913857677902622,
+    "ci95": [
+     0.13011513424016932,
+     0.14868083497061632
+    ]
+   },
+   "workloads": {
+    "w1_matmul": {
+     "runs": 1068,
+     "masked": 925,
+     "sdc": 27,
+     "crash": 94,
+     "hang": 22,
+     "detected": 0,
+     "failures": 143,
+     "failure_rate": 0.13389513108614232,
+     "ci95": [
+      0.11477819814415315,
+      0.1556362894047755
+     ]
+    },
+    "w2_qsort": {
+     "runs": 1068,
+     "masked": 935,
+     "sdc": 41,
+     "crash": 65,
+     "hang": 27,
+     "detected": 0,
+     "failures": 133,
+     "failure_rate": 0.12453183520599251,
+     "ci95": [
+      0.10606464418350445,
+      0.14569036734365767
+     ]
+    },
+    "w3_crc32": {
+     "runs": 1068,
+     "masked": 885,
+     "sdc": 80,
+     "crash": 85,
+     "hang": 18,
+     "detected": 0,
+     "failures": 183,
+     "failure_rate": 0.17134831460674158,
+     "ci95": [
+      0.14993704204251543,
+      0.19511534959347934
+     ]
+    },
+    "w4_attitude": {
+     "runs": 1068,
+     "masked": 911,
+     "sdc": 68,
+     "crash": 78,
+     "hang": 11,
+     "detected": 0,
+     "failures": 157,
+     "failure_rate": 0.14700374531835206,
+     "ci95": [
+      0.1270319062570989,
+      0.1695058477223029
+     ]
+    },
+    "w5_adsb_crc24": {
+     "runs": 1068,
+     "masked": 941,
+     "sdc": 32,
+     "crash": 75,
+     "hang": 20,
+     "detected": 0,
+     "failures": 127,
+     "failure_rate": 0.11891385767790262,
+     "ci95": [
+      0.1008536219686377,
+      0.13970570394546453
+     ]
+    }
+   },
+   "workload_test": {
+    "chi2": 15.596759663318373,
+    "dof": 4,
+    "p": 0.0036108494227161643,
+    "min_expected": 148.6
+   }
+  },
+  "pc": {
+   "all_workloads": {
+    "runs": 5340,
+    "masked": 2843,
+    "sdc": 312,
+    "crash": 2119,
+    "hang": 66,
+    "detected": 0,
+    "failures": 2497,
+    "failure_rate": 0.46760299625468166,
+    "ci95": [
+     0.4542486787735806,
+     0.48100389137352156
+    ]
+   },
+   "workloads": {
+    "w1_matmul": {
+     "runs": 1068,
+     "masked": 573,
+     "sdc": 32,
+     "crash": 448,
+     "hang": 15,
+     "detected": 0,
+     "failures": 495,
+     "failure_rate": 0.46348314606741575,
+     "ci95": [
+      0.4337604948402389,
+      0.4934675486748717
+     ]
+    },
+    "w2_qsort": {
+     "runs": 1068,
+     "masked": 566,
+     "sdc": 43,
+     "crash": 443,
+     "hang": 16,
+     "detected": 0,
+     "failures": 502,
+     "failure_rate": 0.4700374531835206,
+     "ci95": [
+      0.4402652616034223,
+      0.5000244151269247
+     ]
+    },
+    "w3_crc32": {
+     "runs": 1068,
+     "masked": 555,
+     "sdc": 99,
+     "crash": 401,
+     "hang": 13,
+     "detected": 0,
+     "failures": 513,
+     "failure_rate": 0.4803370786516854,
+     "ci95": [
+      0.4504974448682314,
+      0.5103176554860589
+     ]
+    },
+    "w4_attitude": {
+     "runs": 1068,
+     "masked": 559,
+     "sdc": 80,
+     "crash": 427,
+     "hang": 2,
+     "detected": 0,
+     "failures": 509,
+     "failure_rate": 0.47659176029962547,
+     "ci95": [
+      0.44677518137931943,
+      0.5065761285662642
+     ]
+    },
+    "w5_adsb_crc24": {
+     "runs": 1068,
+     "masked": 590,
+     "sdc": 58,
+     "crash": 400,
+     "hang": 20,
+     "detected": 0,
+     "failures": 478,
+     "failure_rate": 0.44756554307116103,
+     "ci95": [
+      0.41798474650096945,
+      0.4775221877771379
+     ]
+    }
+   },
+   "workload_test": {
+    "chi2": 2.862955772040765,
+    "dof": 4,
+    "p": 0.5810150435287456,
+    "min_expected": 499.4
+   }
+  },
+  "regfile": {
+   "all_workloads": {
+    "runs": 5340,
+    "masked": 3741,
+    "sdc": 922,
+    "crash": 127,
+    "hang": 550,
+    "detected": 0,
+    "failures": 1599,
+    "failure_rate": 0.29943820224719103,
+    "ci95": [
+     0.28730153769337796,
+     0.3118632173791449
+    ]
+   },
+   "workloads": {
+    "w1_matmul": {
+     "runs": 1068,
+     "masked": 625,
+     "sdc": 220,
+     "crash": 37,
+     "hang": 186,
+     "detected": 0,
+     "failures": 443,
+     "failure_rate": 0.4147940074906367,
+     "ci95": [
+      0.38560246142894417,
+      0.44459630677298045
+     ]
+    },
+    "w2_qsort": {
+     "runs": 1068,
+     "masked": 906,
+     "sdc": 68,
+     "crash": 10,
+     "hang": 84,
+     "detected": 0,
+     "failures": 162,
+     "failure_rate": 0.15168539325842698,
+     "ci95": [
+      0.13142249309327197,
+      0.1744449988970131
+     ]
+    },
+    "w3_crc32": {
+     "runs": 1068,
+     "masked": 886,
+     "sdc": 114,
+     "crash": 19,
+     "hang": 49,
+     "detected": 0,
+     "failures": 182,
+     "failure_rate": 0.1704119850187266,
+     "ci95": [
+      0.14905283886113074,
+      0.19413360517268735
+     ]
+    },
+    "w4_attitude": {
+     "runs": 1068,
+     "masked": 607,
+     "sdc": 337,
+     "crash": 40,
+     "hang": 84,
+     "detected": 0,
+     "failures": 461,
+     "failure_rate": 0.43164794007490637,
+     "ci95": [
+      0.4022397381604408,
+      0.46154608688066356
+     ]
+    },
+    "w5_adsb_crc24": {
+     "runs": 1068,
+     "masked": 717,
+     "sdc": 183,
+     "crash": 21,
+     "hang": 147,
+     "detected": 0,
+     "failures": 351,
+     "failure_rate": 0.32865168539325845,
+     "ci95": [
+      0.30113848212510097,
+      0.35739310667657154
+     ]
+    }
+   },
+   "workload_test": {
+    "chi2": 356.985004160078,
+    "dof": 4,
+    "p": 5.441737609746321e-76,
+    "min_expected": 319.8
+   }
+  }
+ }
+}

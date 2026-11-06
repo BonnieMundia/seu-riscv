@@ -74,6 +74,35 @@ and it records honestly that we had already seen a few single flips.
 anything: it produces exactly 37,380 unique run ids, and `make campaign EXP=e1` stops at the
 guard. Do not change the seed after the campaign has started.
 
+## 7b. E1 results (6 Nov 2026)
+
+Ran from a clean commit (4d97e70) on 8 workers in 119 s. Checks: 37,380 unique runs, 1,068 in
+every cell, 0 `not_injected`, every hang stopped at exactly 2 × golden cycles, and 350 randomly
+chosen rows replayed one by one gave the same outcome and cycle count.
+
+| unit | bits | failure rate, pooled [95% Wilson] |
+|---|---|---|
+| control | 20 | 64.2% [62.9, 65.5] |
+| pc | 62 | 46.8% [45.4, 48.1] |
+| regfile | 992 | 29.9% [28.7, 31.2] |
+| memif | 107 | 13.9% [13.0, 14.9] |
+| decoder | 125 | 13.5% [12.6, 14.5] |
+| alu | 133 | 12.3% [11.4, 13.2] |
+| counters | 128 | 0.0% [0.0, 0.07] |
+
+**Two rankings, two answers.** Per flip, control is worst. Per chip, the regfile gives 76.8%
+of failures, because it has 992 bits (rate × bits, assuming each bit is equally likely to be hit).
+This is the point of RQ2: hardening the regfile (H2) and hardening control (H3) fix different
+things. That per-chip figure is exploratory, and it assumes a regfile bit is as easy to upset as a
+flip-flop. A real regfile is often built differently, so this needs stating in the paper.
+
+**Why the regfile depends on the workload.** Its rate runs from 15.2% (W2) to 43.2% (W4). pc shows
+no workload effect (p = 0.58). That is a candidate explanation, not yet a measured one:
+a register matters only while it holds a value that will be read later, and that time differs
+per workload, while the PC is in use all the time in every workload.
+
+Verdicts: `studies/seu/docs/hypotheses.md`. All 7 supported, with the caveat there.
+
 ---
 
 ## 8. Do it yourself
@@ -90,6 +119,13 @@ guard. Do not change the seed after the campaign has started.
 4. **Review `hypotheses.md`.** For each row, say whether you agree with the reason. Change
    anything you disagree with, then approve it. Viva practice: why does H1 say "stop and
    investigate" instead of just reporting the number?
+
+5. **Re-derive a number.** `make rates EXP=e1`, then check by hand that regfile gives 76.8% of
+   failures: multiply each unit's rate by its bits, then take regfile's share of the total.
+6. **Replay one row.** Pick any `sdc` row in `studies/seu/results/raw/e1.csv` and rerun it
+   with `./obj_dir_fi/Vinject` using its `signal`, `bit` and `cycle`, with
+   `+max_cycles=` set to 2 × that workload's golden cycles. *Expect:* the same `cycles_run`, and an output
+   different from golden. If `also` is not empty, add those bits to `+bits=`.
 
 ## 9. Sources
 
